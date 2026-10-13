@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { getCubePerformance } from '../src/cube-performance.js';
+import { fetchCubeCobraCsv } from '../src/cube-cobra-client.js';
 
 function shortId(copyId) {
   return copyId.slice(-8);
@@ -9,11 +10,12 @@ function printingLabel(printing) {
   return `${printing?.set || 'Unknown set'} #${printing?.collectorNumber || '?'}`;
 }
 
-export default function App({ store }) {
+export default function App({ store, fetcher = globalThis.fetch }) {
   const [state, setState] = useState(() => store.getState());
   const [cubeId, setCubeId] = useState(() => state.cubes[0]?.cubeId ?? '');
   const [newCubeId, setNewCubeId] = useState('');
   const [csv, setCsv] = useState('');
+  const [cubeCobraSource, setCubeCobraSource] = useState('');
   const [reconciliation, setReconciliation] = useState(null);
   const [matches, setMatches] = useState({});
   const [qrPayload, setQrPayload] = useState('');
@@ -118,6 +120,21 @@ export default function App({ store }) {
     }
   }
 
+  async function loadCubeCobra(event) {
+    event.preventDefault();
+    try {
+      const loaded = await fetchCubeCobraCsv(cubeCobraSource, { fetcher });
+      setNewCubeId(loaded.cubeId);
+      setCsv(loaded.csv);
+      setReconciliation(null);
+      setMessage(`Loaded ${loaded.name} from Cube Cobra. Review it, then import the cube.`);
+      setError('');
+    } catch (cause) {
+      setError(cause.message);
+      setMessage('');
+    }
+  }
+
   function exportBackup() {
     setBackupJson(store.exportBackup({ exportedAt: new Date().toISOString() }));
     setMessage('Backup JSON is ready to save. Keep a copy outside this browser.');
@@ -183,14 +200,20 @@ export default function App({ store }) {
       <section className="panel import-panel" aria-labelledby="import-title">
         <div>
           <h2 id="import-title">Import a cube</h2>
-          <p>Start with a Cube Cobra CSV export. Each row becomes a distinct physical copy.</p>
+          <p>Load a public Cube Cobra URL or use a CSV export. Each card becomes a distinct physical copy.</p>
         </div>
-        <form onSubmit={importCube} className="import-form">
+        <div className="import-form">
+          <form onSubmit={loadCubeCobra} className="import-form">
+            <label>Cube Cobra URL or ID<input value={cubeCobraSource} onChange={(event) => setCubeCobraSource(event.target.value)} placeholder="https://cubecobra.com/cube/overview/..." required /></label>
+            <button type="submit">Load from Cube Cobra</button>
+          </form>
+          <form onSubmit={importCube} className="import-form">
           <label>Cube ID<input value={newCubeId} onChange={(event) => setNewCubeId(event.target.value)} placeholder="my-cube" required /></label>
           <label>Cube Cobra CSV<textarea value={csv} onChange={(event) => { setCsv(event.target.value); setReconciliation(null); }} placeholder="Paste exported CSV here" required /></label>
           <label className="file-label">Or choose a CSV file<input type="file" accept=".csv,text/csv" onChange={chooseFile} /></label>
           <button type="submit">Import cube</button>
-        </form>
+          </form>
+        </div>
         {reconciliation && (
           <form onSubmit={saveReconciledVersion} className="import-form">
             <h3>Review physical copy changes</h3>
