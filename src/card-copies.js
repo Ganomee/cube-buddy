@@ -1,11 +1,11 @@
-import { randomUUID } from 'node:crypto';
+import { newId } from './ids.js';
 
 export function createCardCopy({ cardId } = {}) {
   if (typeof cardId !== 'string' || cardId.trim() === '') {
     throw new TypeError('A cardId is required for each physical copy');
   }
 
-  return { cardId, copyId: randomUUID() };
+  return { cardId, copyId: newId() };
 }
 
 export function prepareReprint(copy, { identity } = {}) {
@@ -16,5 +16,5 @@ export function prepareReprint(copy, { identity } = {}) {
     throw new TypeError('A valid physical copy is required');
   }
 
-  return identity === 'retain' ? { ...copy } : { ...copy, copyId: randomUUID() };
+  return identity === 'retain' ? { ...copy } : { ...copy, copyId: newId() };
 }

@@ -1,13 +1,13 @@
-import { randomUUID } from 'node:crypto';
+import { newId } from './ids.js';
 
 export function createTrackingCycle({ copyId } = {}) {
   if (typeof copyId !== 'string' || copyId.trim() === '') {
     throw new TypeError('A copyId is required');
   }
-  return { cycleId: randomUUID(), copyId, status: 'active', snapshots: [] };
+  return { cycleId: newId(), copyId, status: 'active', snapshots: [] };
 }
 
-export function reviewSnapshot(cycle, { snapshotId = randomUUID(), wins, losses, capturedAt } = {}) {
+export function reviewSnapshot(cycle, { snapshotId = newId(), wins, losses, capturedAt } = {}) {
   if (!cycle || !Array.isArray(cycle.snapshots) || !cycle.cycleId || !cycle.copyId) {
     throw new TypeError('A valid tracking cycle is required');
   }

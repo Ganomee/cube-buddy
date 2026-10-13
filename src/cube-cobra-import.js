@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { newId } from './ids.js';
 import { createCardCopy } from './card-copies.js';
 
 function parseCsv(input) {
@@ -75,7 +75,7 @@ export function importCubeCobraCsv(csv, { cubeId, versionId } = {}) {
     const values = Object.fromEntries(columns.map((column, index) => [column, row.cells[index] ?? '']));
     const name = values.name.trim();
     const key = name ? name.toLowerCase() : `unresolved-row-${row.line}`;
-    if (!definitions.has(key)) definitions.set(key, randomUUID());
+    if (!definitions.has(key)) definitions.set(key, newId());
     const cardId = definitions.get(key);
     const copy = createCardCopy({ cardId });
     const entry = {

@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { newId } from './ids.js';
 import { importCubeCobraCsv } from './cube-cobra-import.js';
 import { archiveAndResetCycle, createTrackingCycle, reviewSnapshot } from './observations.js';
 
@@ -29,7 +29,7 @@ export function createProjectStore(storage) {
       if (state.cubes.some((cube) => cube.cubeId === cubeId)) {
         throw new Error('An existing cube needs physical-copy reconciliation before reimport');
       }
-      const imported = importCubeCobraCsv(csv, { cubeId, versionId: randomUUID() });
+      const imported = importCubeCobraCsv(csv, { cubeId, versionId: newId() });
       const cube = { cubeId, activeVersionId: imported.cube.versionId, versions: [imported.cube] };
       const cycles = { ...state.cycles };
       for (const entry of imported.cube.entries) {
