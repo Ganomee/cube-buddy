@@ -17,7 +17,7 @@ Update this board with each story move. IDs and phases come from the project bri
 
 ## Blocked by decision or proof
 
-- [ ] CB-18, CB-19, CB-31, CB-32, CB-34, CB-35 (P0/1) Print and Proxxied integration: reuse route, calibrated printer profile, reprint UX, and full print project. The owner chose 50 slots, no draw marks, erasable printed backs, two handwritten edge rows, and a double-faced placeholder with tracking back plus playable side pile.
+- [ ] CB-18, CB-31, CB-32, CB-34, CB-35 (P0/1) Print and Proxxied integration: reuse route, calibrated printer profile, reprint UX, and full print project. The double-faced placeholder has a tracking back plus a playable side pile.
 - [ ] CB-21 (P1/2) Image extraction: depends on approved back template and reviewed snapshot model.
 - [ ] CB-02–06, CB-08–12 (P1/3) Draft session and play: depends on Phase 1 release and D-07.
 - [ ] CB-07 (P1/3) Swiss pairings: D-08.
@@ -27,7 +27,7 @@ Update this board with each story move. IDs and phases come from the project bri
 
 ## Review
 
-- [ ] CB-33 (P0/1) Numbered A4 proof generated with nine fronts, mirrored tracking backs, QR identities, and manifest. Awaiting physical Canon iP7200-series print and owner assessment of registration, scan/readability, and erasability.
+- [ ] CB-19, CB-33 (P0/1) Revised numbered A4 proof generated with nine fronts, mirrored Games/Wins backs (50 squares each), 30 pick boxes, QR identities, and manifest. Awaiting physical Canon iP7200-series print and owner assessment of registration, scan/readability, and erasability.
 
 ## Done
 

@@ -18,17 +18,21 @@ async function trackingBackContent({ copyId, name, cycle = 1 }) {
   const edgeRows = [0, 1].map((row) => {
     const y = 2.6 + row * 5.1;
     const label = row === 0 ? 'Average pick' : 'Drafts';
-    const blanks = Array.from({ length: 5 }, (_, index) => `<rect x="${25.4 + index * 7.1}" y="${y - 1.5}" width="6.4" height="3.8" fill="none" stroke="#666" stroke-width="0.18"/>`).join('');
+    const blanks = Array.from({ length: 15 }, (_, index) => `<rect data-pick-box="${row * 15 + index + 1}" x="${18 + index * 2.9}" y="${y - 1.5}" width="2.55" height="3.8" fill="none" stroke="#666" stroke-width="0.18"/>`).join('');
     return `<text x="2.2" y="${y + 1.1}" font-size="2.3">${label}</text>${blanks}`;
   }).join('');
-  const slots = Array.from({ length: 50 }, (_, index) => {
-    const col = index % 5;
-    const row = Math.floor(index / 5);
-    const x = 2 + col * 11.9;
-    const y = 14.2 + row * 5.25;
-    return `<g data-slot="${index + 1}"><rect x="${x}" y="${y}" width="11.9" height="5.25" fill="none" stroke="#777" stroke-width="0.18"/><text x="${x + 0.6}" y="${y + 3.3}" font-size="2.4">${index + 1}</text><circle data-outcome="W" cx="${x + 6.3}" cy="${y + 2.5}" r="1.45" fill="none" stroke="#222" stroke-width="0.22"/><circle data-outcome="L" cx="${x + 9.8}" cy="${y + 2.5}" r="1.45" fill="none" stroke="#222" stroke-width="0.22"/><text x="${x + 5.55}" y="${y + 3.2}" font-size="1.8">W</text><text x="${x + 9.35}" y="${y + 3.2}" font-size="1.8">L</text></g>`;
+  const fields = ['games', 'wins'].map((field, fieldIndex) => {
+    const panelX = fieldIndex === 0 ? 2 : 32.3;
+    const squares = Array.from({ length: 50 }, (_, index) => {
+      const col = index % 5;
+      const row = Math.floor(index / 5);
+      const x = panelX + 1.8 + col * 5.2;
+      const y = 20.3 + row * 4.55;
+      return `<rect data-mark="${field}" x="${x}" y="${y}" width="3.7" height="3.7" fill="none" stroke="#333" stroke-width="0.23"/>`;
+    }).join('');
+    return `<g data-field="${field}"><rect x="${panelX}" y="14.2" width="29.2" height="52.5" fill="none" stroke="#222" stroke-width="0.32"/><text x="${panelX + 14.6}" y="18.4" font-size="3.3" font-weight="bold" text-anchor="middle">${field === 'games' ? 'Games' : 'Wins'}</text>${squares}</g>`;
   }).join('');
-  return `<title>${escapeXml(payload)}</title><rect x="0.2" y="0.2" width="63.1" height="88.5" fill="white" stroke="#222" stroke-width="0.4"/><line x1="0.2" y1="13.2" x2="63.3" y2="13.2" stroke="#222" stroke-width="0.25"/>${edgeRows}${slots}<image x="2" y="68.4" width="18.5" height="18.5" href="${qr}"/><text x="22.5" y="73" font-size="2.5">${escapeXml(name ?? '')}</text><text x="22.5" y="78" font-size="2.2">Copy ${escapeXml(copyId.slice(-8))}</text><text x="22.5" y="83" font-size="2.2">Cycle ${escapeXml(cycle)}</text>`;
+  return `<title>${escapeXml(payload)}</title><rect x="0.2" y="0.2" width="63.1" height="88.5" fill="white" stroke="#222" stroke-width="0.4"/><line x1="0.2" y1="13.2" x2="63.3" y2="13.2" stroke="#222" stroke-width="0.25"/>${edgeRows}${fields}<image x="2" y="68.4" width="18.5" height="18.5" href="${qr}"/><text x="22.5" y="73" font-size="2.5">${escapeXml(name ?? '')}</text><text x="22.5" y="78" font-size="2.2">Copy ${escapeXml(copyId.slice(-8))}</text><text x="22.5" y="83" font-size="2.2">Cycle ${escapeXml(cycle)}</text>`;
 }
 
 export async function renderTrackingBack(copy) {
