@@ -17,7 +17,7 @@ Update this board with each story move. IDs and phases come from the project bri
 
 ## Blocked by decision or proof
 
-- [ ] CB-18, CB-19, CB-31–35 (P0/1) Print and Proxxied integration: reuse route, edge summary, print profile, placeholder front detail, reprint UX, and actual-size proof. The owner chose 50 slots, no draw marks, erasable printed backs, and a double-faced placeholder with tracking back.
+- [ ] CB-18, CB-19, CB-31–35 (P0/1) Print and Proxxied integration: reuse route, print profile, reprint UX, and actual-size proof. The owner chose 50 slots, no draw marks, erasable printed backs, two handwritten edge rows, and a double-faced placeholder with tracking back plus playable side pile.
 - [ ] CB-21 (P1/2) Image extraction: depends on approved back template and reviewed snapshot model.
 - [ ] CB-02–06, CB-08–12 (P1/3) Draft session and play: depends on Phase 1 release and D-07.
 - [ ] CB-07 (P1/3) Swiss pairings: D-08.

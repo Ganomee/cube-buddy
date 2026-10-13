@@ -14,7 +14,7 @@ Inspected 13 October 2026. These are source observations and integration constra
 
 - The [cube CSV export header](https://github.com/dekkerglen/CubeCobra/blob/master/packages/server/src/serverutils/cube.ts) includes `name`, `Set`, `Collector Number`, `board`, `image URL`, and `image Back URL`. These give Cube Buddy printing and custom-art inputs. The server's [API documentation](https://github.com/dekkerglen/CubeCobra/blob/master/packages/client/src/pages/ApiDocsPage.tsx) lists a CSV download route.
 - The CSV header does **not** contain a durable per-entry or Oracle ID. A cube ID may be supplied from the source URL or by the owner, but CSV rows alone cannot prove a durable external card-entry mapping. Keep row order, set/collector number, and original CSV fields; do not invent a Cube Cobra entry ID.
-- User direction: use artwork selected in Cube Cobra. Preserve its image URLs. For a double-faced card, prefer a selected merged custom front image; otherwise prepare a draft placeholder front with a tracking back. The physical placeholder procedure remains subject to the owner's answer and proof.
+- User direction: use artwork selected in Cube Cobra. Preserve its image URLs. For a double-faced card, prefer a selected merged custom front image; otherwise prepare a conventional draft placeholder front with a tracking back. Keep the playable double-faced card in a separate side pile.
 
 ## Open verification
 

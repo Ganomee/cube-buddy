@@ -37,15 +37,15 @@ Inspect Proxxied source, exporter, and actual reuse terms. Establish a per-copy 
 | ID | Required decision or evidence | Needed before |
 | --- | --- | --- |
 | D-01 | Proxxied source reuse/license and integration boundary | CB-31 implementation/distribution |
-| D-02 | **Decided 13 Oct 2026:** 50 W/L slots; skip draws; mark the printed back with an erasable medium. Exposed edge has two rows: average pick and number of captured drafts at the left, with the remaining area open for the current handwritten pick number. Physical legibility and erasability still require a proof. | CB-19 template approval |
+| D-02 | **Decided 13 Oct 2026:** 50 W/L slots; skip draws; mark the printed back with an erasable medium. The exposed edge has two rows: leftmost fields for average pick and number of drafts, with the remaining space open for handwritten pick numbers from drafts. Do not auto-calculate the average yet. Physical legibility and erasability still require a proof. | CB-19 template approval |
 | D-03 | A4/Letter, flip mode, printer offsets, QR size from proof | CB-32/33 release |
-| D-04 | **Decided 13 Oct 2026:** draft a placeholder card for a double-faced card, with a tracking back. Use the merged custom front when Cube Cobra supplies one; otherwise make a conventional placeholder. How the playable card is supplied needs a proof decision. | CB-35 bulk export |
+| D-04 | **Decided 13 Oct 2026:** draft a placeholder card for a double-faced card, with a tracking back. Use the merged custom front when Cube Cobra supplies one; otherwise make a conventional placeholder showing the card and both faces. Keep the playable card in a separate side pile. | CB-35 bulk export |
 | D-05 | Retain versus replace physical-copy identity on reprint | CB-34 UI approval |
 | D-06 | CSV fields inspected in source; validate with an owner export. CSV has no durable entry/Oracle ID. Supported performance import capability remains unverified. | CB-01 adapter / CB-37 target claim |
 | D-07 | Mixed-phone transport, authority, recovery | CB-03 multi-phone implementation |
 | D-08 | Swiss scoring, byes, tie-breaks, drops, repeats | CB-07 implementation |
 | D-09 | Pick convention, team rules, voice language/provider, exact digital service | Phases 5–6 |
-| D-10 | Pick convention for the erasable field and historical average: pack position, overall draft position, or per-cube choice. Owner answer pending. Never combine samples from different conventions. | Pick-average calculation and edge template labels |
+| D-10 | **Decided 13 Oct 2026:** configurable per cube; default to overall draft pick position. If recorded numbers never exceed 15, suggest checking whether pack position was used, but never switch automatically. Edge average and draft count are handwritten placeholders for now. Never combine samples from different conventions. | Later pick capture and average calculation |
 
 ## Near-term TDD slices
 
