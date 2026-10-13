@@ -1,4 +1,5 @@
 import QRCode from 'qrcode';
+import { readFile } from 'node:fs/promises';
 
 const CARD_WIDTH = 63.5;
 const CARD_HEIGHT = 88.9;
@@ -6,42 +7,80 @@ const PAGE_WIDTH = 210;
 const PAGE_HEIGHT = 297;
 const START_X = (PAGE_WIDTH - CARD_WIDTH * 3) / 2;
 const START_Y = (PAGE_HEIGHT - CARD_HEIGHT * 3) / 2;
+const TEMPLATE_PATH = new URL('./cardback nice.png', import.meta.url);
+const SOURCE_WIDTH = 1024;
+const SOURCE_HEIGHT = 1536;
+
+export const CARD_BACK_LAYOUT = Object.freeze({
+  source: Object.freeze({ width: SOURCE_WIDTH, height: SOURCE_HEIGHT }),
+  // Extracted from the grey corner guides at pixels (373, 614)-(651, 902).
+  qr: Object.freeze({ x: 23.85, y: 36.1, width: 15.8, height: 15.8 }),
+  // Extracted from the bottom plaque at pixels (150, 1315)-(870, 1425).
+  name: Object.freeze({ x: 9.3, y: 76.1, width: 44.6, height: 6.4 }),
+});
+
+let templateDataUrl;
+
+async function loadTemplateDataUrl() {
+  if (!templateDataUrl) {
+    templateDataUrl = readFile(TEMPLATE_PATH).then((png) => {
+      const signature = png.subarray(1, 4).toString('ascii');
+      const width = png.readUInt32BE(16);
+      const height = png.readUInt32BE(20);
+      if (signature !== 'PNG' || width !== SOURCE_WIDTH || height !== SOURCE_HEIGHT) {
+        throw new Error(`Cardback template must be a ${SOURCE_WIDTH}x${SOURCE_HEIGHT} PNG`);
+      }
+      return `data:image/png;base64,${png.toString('base64')}`;
+    });
+  }
+  return templateDataUrl;
+}
+
+function countGrid(field, x, y) {
+  const coverY = field === 'games' ? 15.65 : 52.7;
+  const coverHeight = field === 'games' ? 18.75 : 22.1;
+  return `<g data-field="${field}"><rect x="14.15" y="${coverY}" width="38.9" height="${coverHeight}" fill="white" stroke="none"/>${Array.from({ length: 50 }, (_, index) => {
+    const col = index % 10;
+    const row = Math.floor(index / 10);
+    return `<rect data-mark="${field}" x="${(x + col * 3.72).toFixed(2)}" y="${(y + row * 3.72).toFixed(2)}" width="3.72" height="3.72" fill="white" stroke="#111" stroke-width="0.18"/>`;
+  }).join('')}</g>`;
+}
+
+function pickRows() {
+  return [0, 1].map((row) => {
+    const y = row === 0 ? 7.52 : 11.58;
+    return `<g data-pick-row="${row + 1}"><rect x="13.4" y="${y - 0.08}" width="43.1" height="3.42" fill="white" stroke="#111" stroke-width="0.18"/>${Array.from({ length: 10 }, (_, column) => `<rect data-pick-box="${row * 10 + column + 1}" x="${(13.45 + column * 4.295).toFixed(3)}" y="${y}" width="4.295" height="3.25" fill="white" stroke="#111" stroke-width="0.16"/>`).join('')}</g>`;
+  }).join('');
+}
 
 function escapeXml(value) {
   return String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 }
 
-async function trackingBackContent({ copyId, name, cycle = 1 }) {
+async function trackingBackContent({ copyId, name }, { templateHref } = {}) {
   if (typeof copyId !== 'string' || !copyId.trim()) throw new TypeError('A copyId is required');
   const payload = `cube-buddy:copy:${copyId}`;
-  const qr = await QRCode.toDataURL(payload, { errorCorrectionLevel: 'M', margin: 4, width: 320 });
-  const edgeRows = [0, 1].map((row) => {
-    const y = 1.2 + row * 5.6;
-    const summary = row === 0 ? 'average-pick' : 'draft-count';
-    const label = row === 0 ? 'AVG' : 'CNT';
-    const blanks = Array.from({ length: 10 }, (_, index) => `<rect data-pick-box="${row * 10 + index + 1}" x="${9.1 + index * 5.25}" y="${y}" width="4.8" height="4.85" fill="none" stroke="#666" stroke-width="0.18"/>`).join('');
-    return `<rect data-summary-box="${summary}" x="1.2" y="${y}" width="6.5" height="4.85" fill="none" stroke="#444" stroke-width="0.2"/><text x="4.45" y="${y + 1.45}" font-size="1.45" text-anchor="middle">${label}</text><line x1="1.2" y1="${y + 1.8}" x2="7.7" y2="${y + 1.8}" stroke="#aaa" stroke-width="0.15"/>${blanks}`;
-  }).join('');
-  const fields = ['games', 'wins'].map((field, fieldIndex) => {
-    const panelX = fieldIndex === 0 ? 2 : 32.3;
-    const squares = Array.from({ length: 50 }, (_, index) => {
-      const col = index % 5;
-      const row = Math.floor(index / 5);
-      const x = panelX + 1.8 + col * 5.2;
-      const y = 20.3 + row * 4.55;
-      return `<rect data-mark="${field}" x="${x}" y="${y}" width="3.7" height="3.7" fill="none" stroke="#333" stroke-width="0.23"/>`;
-    }).join('');
-    return `<g data-field="${field}"><rect x="${panelX}" y="14.2" width="29.2" height="52.5" fill="none" stroke="#222" stroke-width="0.32"/><text x="${panelX + 14.6}" y="18.4" font-size="3.3" font-weight="bold" text-anchor="middle">${field === 'games' ? 'Games' : 'Wins'}</text>${squares}</g>`;
-  }).join('');
-  return `<title>${escapeXml(payload)}</title><rect x="0.2" y="0.2" width="63.1" height="88.5" fill="white" stroke="#222" stroke-width="0.4"/><line x1="0.2" y1="13.2" x2="63.3" y2="13.2" stroke="#222" stroke-width="0.25"/>${edgeRows}${fields}<image x="2" y="68.4" width="18.5" height="18.5" href="${qr}"/><text x="22.5" y="73" font-size="2.5">${escapeXml(name ?? '')}</text><text x="22.5" y="78" font-size="2.2">Copy ${escapeXml(copyId.slice(-8))}</text><text x="22.5" y="83" font-size="2.2">Cycle ${escapeXml(cycle)}</text>`;
+  const [qr, template] = await Promise.all([
+    QRCode.toDataURL(payload, { errorCorrectionLevel: 'Q', margin: 2, width: 512, color: { dark: '#000000', light: '#ffffff' } }),
+    templateHref ? null : loadTemplateDataUrl(),
+  ]);
+  const cardName = String(name ?? '');
+  const nameFontSize = Math.max(1.65, Math.min(2.75, 42 / Math.max(cardName.length, 1)));
+  const forceNameWidth = cardName.length > 40 ? ' textLength="42" lengthAdjust="spacingAndGlyphs"' : '';
+  const { qr: qrBox, name: nameBox } = CARD_BACK_LAYOUT;
+  const trackingFields = `${pickRows()}${countGrid('games', 14.65, 15.8)}${countGrid('wins', 14.65, 54.35)}`;
+  const artwork = templateHref
+    ? `<use data-cardback-template="cardback nice.png" data-source-size="1024x1536" href="${templateHref}"/>`
+    : `<image data-cardback-template="cardback nice.png" data-source-size="1024x1536" x="0" y="0" width="63.5" height="88.9" preserveAspectRatio="none" href="${template}"/>`;
+  return `<title>${escapeXml(payload)}</title>${artwork}${trackingFields}<image data-placeholder="qr" x="${qrBox.x}" y="${qrBox.y}" width="${qrBox.width}" height="${qrBox.height}" href="${qr}"/><rect data-placeholder="name" x="${nameBox.x}" y="${nameBox.y}" width="${nameBox.width}" height="${nameBox.height}" fill="none" stroke="none"/><text x="31.6" y="79.05" font-family="Georgia, serif" font-size="${nameFontSize.toFixed(2)}" font-weight="bold" text-anchor="middle"${forceNameWidth}>${escapeXml(cardName)}</text><text x="31.6" y="81.55" font-family="Arial, sans-serif" font-size="1.55" text-anchor="middle">${escapeXml(copyId.slice(-8))}</text>`;
 }
 
 export async function renderTrackingBack(copy) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="63.5mm" height="88.9mm" viewBox="0 0 63.5 88.9">${await trackingBackContent(copy)}</svg>`;
 }
 
-function pageSvg(content) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 210 297"><rect width="210" height="297" fill="white"/>${content}</svg>`;
+function pageSvg(content, definitions = '') {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="210mm" height="297mm" viewBox="0 0 210 297">${definitions ? `<defs>${definitions}</defs>` : ''}<rect width="210" height="297" fill="white"/>${content}</svg>`;
 }
 
 export async function renderA4Proof(copies) {
@@ -51,6 +90,9 @@ export async function renderA4Proof(copies) {
   const fronts = [];
   const backs = [];
   const manifest = [];
+  const template = await loadTemplateDataUrl();
+  const templateId = 'cube-buddy-cardback-template';
+  const templateDefinition = `<image id="${templateId}" x="0" y="0" width="63.5" height="88.9" preserveAspectRatio="none" href="${template}"/>`;
   for (let index = 0; index < copies.length; index++) {
     const copy = copies[index];
     const row = Math.floor(index / 3);
@@ -61,7 +103,7 @@ export async function renderA4Proof(copies) {
     const y = START_Y + row * CARD_HEIGHT;
     manifest.push({ number: index + 1, copyId: copy.copyId, frontSlot: index, backSlot });
     fronts.push(`<g transform="translate(${frontX} ${y})"><rect width="63.5" height="88.9" fill="white" stroke="#222" stroke-width="0.25"/><text x="31.75" y="37" text-anchor="middle" font-size="20">${index + 1}</text><text x="31.75" y="47" text-anchor="middle" font-size="3.2">${escapeXml(copy.name)}</text><text x="31.75" y="53" text-anchor="middle" font-size="2.5">${escapeXml(copy.copyId.slice(-8))}</text></g>`);
-    backs.push(`<g transform="translate(${backX} ${y})">${await trackingBackContent(copy)}<text x="58" y="84" font-size="3">${index + 1}</text></g>`);
+    backs.push(`<g transform="translate(${backX} ${y})">${await trackingBackContent(copy, { templateHref: `#${templateId}` })}<text x="58" y="84" font-size="3">${index + 1}</text></g>`);
   }
-  return { frontSvg: pageSvg(fronts.join('')), backSvg: pageSvg(backs.join('')), manifest };
+  return { frontSvg: pageSvg(fronts.join('')), backSvg: pageSvg(backs.join(''), templateDefinition), manifest };
 }

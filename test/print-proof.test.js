@@ -20,6 +20,10 @@ test('tracking back uses the supplied artwork and extracted identity placeholder
   assert.match(svg, />Proof card 1</);
   assert.match(svg, />00000001</);
   assert.match(svg, /cube-buddy:copy:00000000-0000-4000-8000-000000000001/);
+  assert.equal((svg.match(/data-mark="games"/g) ?? []).length, 50);
+  assert.equal((svg.match(/data-mark="wins"/g) ?? []).length, 50);
+  assert.equal((svg.match(/data-pick-box="\d+"/g) ?? []).length, 20);
+  assert.match(svg, /data-pick-box="20"/);
 });
 
 test('A4 proof keeps each front and back paired across mirrored positions', async () => {
@@ -36,6 +40,14 @@ test('A4 proof keeps each front and back paired across mirrored positions', asyn
   });
   assert.equal(proof.manifest[4].backSlot, 4);
   assert.equal(proof.manifest[8].backSlot, 6);
+});
+
+test('long card names are constrained to the illustrated name plaque', async () => {
+  const svg = await renderTrackingBack({
+    copyId: copies[0].copyId,
+    name: 'This Is an Extremely Long Double-Faced Placeholder Card Name That Must Fit',
+  });
+  assert.match(svg, /textLength="42" lengthAdjust="spacingAndGlyphs"/);
 });
 
 test('proof rejects anything except nine distinct physical copies', async () => {
