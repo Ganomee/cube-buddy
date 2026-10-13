@@ -52,3 +52,20 @@ test('owner can open the right physical copy by its printed QR payload', () => {
   expect(screen.getByText(`Physical copy ${target.slice(-8)}`)).toBeTruthy();
   expect(screen.getAllByRole('button', { name: /Sol Ring copy/i })[1].getAttribute('aria-pressed')).toBe('true');
 });
+
+test('owner can export and restore a local project backup', () => {
+  const source = store();
+  source.importCubeCsv(csv, { cubeId: 'my-cube' });
+  render(<App store={source} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Export backup' }));
+  const backup = screen.getByLabelText('Backup JSON').value;
+  expect(JSON.parse(backup).project.cubes[0].cubeId).toBe('my-cube');
+
+  cleanup();
+  const destination = store();
+  render(<App store={destination} />);
+  fireEvent.change(screen.getByLabelText('Backup JSON'), { target: { value: backup } });
+  fireEvent.click(screen.getByRole('button', { name: 'Restore backup' }));
+  expect(screen.getByText('Sol Ring')).toBeTruthy();
+  expect(destination.getState()).toEqual(source.getState());
+});
