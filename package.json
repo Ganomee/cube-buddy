@@ -6,6 +6,7 @@
     "test": "node --test",
     "test:ui": "vitest run --pool=threads --maxWorkers=1 --no-file-parallelism",
     "test:cubecobra": "node scripts/check-reference-cube.js",
+    "test:cubecobra-record": "node --env-file-if-exists=.env.local --test test/cube-cobra-record-live.test.js",
     "dev": "vite",
     "build": "vite build",
     "proof": "node scripts/generate-proof.js"

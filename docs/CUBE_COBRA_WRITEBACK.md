@@ -57,4 +57,6 @@ Cube Buddy now lets the owner prepare an existing Records connection without ent
 
 The token is scoped to that existing record. Cube Buddy stores it in separate browser-local integration storage and excludes it from project backups and performance exports. Saving the token does not yet submit data.
 
+Developers can keep a test contribution URL in the ignored `.env.local` variable `CUBE_COBRA_RECORD_SHARE_URL` and run `npm run test:cubecobra-record`. The live test performs only a GET and verifies that Cube Cobra keeps the request on the expected contribution page; it never submits a deck or result.
+
 If Cube Buddy later captures real events with players, complete decks, rounds, and matches, it can produce a separate Cube Cobra Records export. At that point an official Records API or the existing owner-created record contribution flow may be appropriate. Aggregate physical-card marks alone are insufficient for that conversion.

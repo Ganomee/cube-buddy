@@ -20,6 +20,8 @@ Cube Cobra URL import uses its public, CORS-enabled cube JSON endpoint and needs
 
 For a future Records contribution, select an imported cube and follow **Connect a Cube Cobra record** in the app. In Cube Cobra, open that cube's Records page, create or open the destination record, use its share action, and paste the copied contribution link or token into Cube Buddy. The token is stored only in that browser and is excluded from project backups. Saving it prepares the connection; automatic contribution is not implemented yet.
 
+For an opt-in read only check of a saved development token, put `CUBE_COBRA_RECORD_SHARE_URL=<complete contribution URL>` in the ignored `.env.local` file and run `npm run test:cubecobra-record`. This confirms that Cube Cobra still accepts the token and serves the expected record contribution page. It does not submit or change a record.
+
 The proposed supported write-back contract is documented in [`docs/CUBE_COBRA_WRITEBACK.md`](docs/CUBE_COBRA_WRITEBACK.md).
 
 The preliminary product brief is an input to planning, not an implementation instruction. Proposed defaults and unresolved choices remain explicit decisions in the plan.
