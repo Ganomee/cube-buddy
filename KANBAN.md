@@ -23,7 +23,7 @@ Update this board with each story move. IDs and phases come from the project bri
 
 ## Review
 
-- [ ] CB-19, CB-33 (P0/1) Revised numbered A4 proof generated with nine fronts, mirrored Games/Wins backs (50 squares each), 30 pick boxes, QR identities, and manifest. Awaiting physical Canon iP7200-series print and owner assessment of registration, scan/readability, and erasability.
+- [ ] CB-19, CB-33 (P0/1) Revised numbered A4 proof generated with nine fronts, mirrored Games/Wins backs (50 squares each), 20 two-digit pick boxes, in-box AVG/CNT fields, QR identities, and manifest. Awaiting physical Canon iP7200-series print and owner assessment of registration, scan/readability, and erasability.
 - [ ] CB-20, CB-22, CB-36 (P0/1) Owner flow imports a cube, opens a copy by QR payload, reviews cumulative Games/Wins marks, displays performance, and archives/resets a cycle. Needs owner trial with real cards and copies before release acceptance.
 - [ ] CB-23 (P0/1) Copy review shows sample size, last review date, and the player-selected scope. Awaiting owner workflow review.
 - [ ] CB-37 (P0/1) Versioned local JSON backup and empty-project restore preserve cube versions, copy IDs, source mappings, and cycles. Owner flow passes; Cube Cobra performance import compatibility is still unverified.
