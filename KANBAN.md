@@ -28,7 +28,7 @@ Update this board with each story move. IDs and phases come from the project bri
 - [ ] CB-37 (P0/1) Local backup/restore and cube-linked performance JSON preserve cube UUID, source card/Oracle IDs, copy IDs, metric scope, and cycles. Direct Cube Cobra write-back is blocked by its session/CSRF routes and incompatible Records event/deck metric.
 - [ ] CB-38 (P0/1) Cube Cobra collaboration contract proposes scoped authentication, idempotent aggregate physical-card observations, revocation, and separation from Records analytics. Owner controls outreach and upstream agreement.
 - [x] CB-39 (P0/1) Cube Cobra record connection accepts an owner-copied contribution link/token per cube and stores it only in browser-local integration storage.
-- [ ] CB-40 (P0/1) Residual Records transport calculates one managed one-card deck per Oracle ID, excludes its own managed players, blocks negative residuals for human review, and has passed a live create/update/read-back test. Bulk owner preview and apply UI remains pending.
+- [ ] CB-40 (P0/1) Residual Records transport calculates one managed one-card deck per Oracle ID, excludes its own managed players, blocks the entire batch when any residual needs human review, and has passed live create/update/read-back tests including overlapping 10-match and 8-match decks. Bulk owner preview and apply UI remains pending.
 
 ## Done
 

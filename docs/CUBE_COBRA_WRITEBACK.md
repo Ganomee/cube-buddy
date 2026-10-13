@@ -61,4 +61,6 @@ Developers can keep a test contribution URL in the ignored `.env.local` variable
 
 The implemented residual planner counts results from ordinary Cube Cobra decks that contain each Oracle ID, excludes Cube Buddy's own `Cube Buddy · <Oracle ID>` transport player, and uploads only the remaining W/L with draws fixed to zero. A residual below zero becomes a human review item. This prevents silent negative or compensating records. Reusing the same managed player name makes retries overwrite that card's transport deck and result instead of adding another player.
 
+The batch synchronizer plans every card before writing. If any card needs review, it writes none of them. Its live fixture includes a 10-match two-card deck and an 8-match two-card deck with one overlapping card, then verifies residuals independently for all three cards and reads every managed result back from Cube Cobra.
+
 If Cube Buddy later captures real events with players, complete decks, rounds, and matches, it can produce a separate Cube Cobra Records export. At that point an official Records API or the existing owner-created record contribution flow may be appropriate. Aggregate physical-card marks alone are insufficient for that conversion.

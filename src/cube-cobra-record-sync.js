@@ -1,3 +1,5 @@
+import { readCubeCobraRecord, submitCubeCobraRecordContribution } from './cube-cobra-record-live.js';
+
 export const MANAGED_PLAYER_PREFIX = 'Cube Buddy · ';
 
 export function planResidualContributions(desiredCards, existingContributions) {
@@ -15,4 +17,20 @@ export function planResidualContributions(desiredCards, existingContributions) {
     }
     return { playerName: `${MANAGED_PLAYER_PREFIX}${card.oracleId}`, oracleIds: [card.oracleId], wins, losses, draws: 0 };
   });
+}
+
+export async function syncCubeCobraResiduals(shareUrl, desiredCards, {
+  reader = readCubeCobraRecord,
+  submitter = submitCubeCobraRecordContribution,
+} = {}) {
+  const current = await reader(shareUrl);
+  const plan = planResidualContributions(desiredCards, current.contributions);
+  const review = plan.filter((item) => item.status === 'needs-review');
+  if (review.length) return { status: 'needs-review', plan, review, applied: [] };
+
+  const applied = [];
+  for (const contribution of plan) {
+    applied.push(await submitter(shareUrl, contribution));
+  }
+  return { status: 'applied', plan, review: [], applied };
 }
