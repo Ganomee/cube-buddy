@@ -61,22 +61,40 @@ function escapeXml(value) {
   return String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 }
 
-async function trackingBackContent({ copyId, name }, { templateHref } = {}) {
+async function cardbackTemplateContent({ templateHref } = {}) {
+  const template = templateHref ? null : await loadTemplateDataUrl();
+  return templateHref
+    ? `<use data-cardback-template="cardback nice.png" data-source-size="1024x1536" href="${templateHref}"/>`
+    : `<image data-cardback-template="cardback nice.png" data-source-size="1024x1536" x="0" y="0" width="63.5" height="88.9" preserveAspectRatio="none" href="${template}"/>`;
+}
+
+async function trackingOverlayContent({ copyId, name }) {
   if (typeof copyId !== 'string' || !copyId.trim()) throw new TypeError('A copyId is required');
   const payload = `cube-buddy:copy:${copyId}`;
-  const [qr, template] = await Promise.all([
-    QRCode.toDataURL(payload, { errorCorrectionLevel: 'Q', margin: 2, width: 512, color: { dark: '#000000', light: '#ffffff' } }),
-    templateHref ? null : loadTemplateDataUrl(),
-  ]);
+  const qr = await QRCode.toDataURL(payload, { errorCorrectionLevel: 'Q', margin: 2, width: 512, color: { dark: '#000000', light: '#ffffff' } });
   const cardName = String(name ?? '');
   const nameFontSize = Math.max(1.65, Math.min(2.75, 42 / Math.max(cardName.length, 1)));
   const forceNameWidth = cardName.length > 40 ? ' textLength="43.2" lengthAdjust="spacingAndGlyphs"' : '';
   const { qr: qrBox, name: nameBox } = CARD_BACK_LAYOUT;
   const trackingFields = `${pickRows()}${countGrid('games', 14.65, 15.8)}${countGrid('wins', 14.65, 54.35)}${qrBorders()}`;
-  const artwork = templateHref
-    ? `<use data-cardback-template="cardback nice.png" data-source-size="1024x1536" href="${templateHref}"/>`
-    : `<image data-cardback-template="cardback nice.png" data-source-size="1024x1536" x="0" y="0" width="63.5" height="88.9" preserveAspectRatio="none" href="${template}"/>`;
-  return `<title>${escapeXml(payload)}</title>${artwork}${trackingFields}<image data-placeholder="qr" x="${qrBox.x}" y="${qrBox.y}" width="${qrBox.width}" height="${qrBox.height}" href="${qr}"/><rect data-placeholder="name" x="${nameBox.x}" y="${nameBox.y}" width="${nameBox.width}" height="${nameBox.height}" fill="none" stroke="none"/><text x="31.6" y="79.05" font-family="Georgia, serif" font-size="${nameFontSize.toFixed(2)}" font-weight="bold" text-anchor="middle"${forceNameWidth}>${escapeXml(cardName)}</text><text x="31.6" y="81.55" font-family="Arial, sans-serif" font-size="1.55" text-anchor="middle">${escapeXml(copyId.slice(-8))}</text>`;
+  const copyNumber = copyId.replaceAll('-', '').slice(-9).padStart(9, '0');
+  return `<g data-tracking-overlay="replacement"><title>${escapeXml(payload)}</title>${trackingFields}<image data-placeholder="qr" x="${qrBox.x}" y="${qrBox.y}" width="${qrBox.width}" height="${qrBox.height}" href="${qr}"/><text data-copy-number="${escapeXml(copyNumber)}" x="31.75" y="74.8" font-family="Arial, sans-serif" font-size="1.15" text-anchor="middle">${escapeXml(copyNumber)}</text><rect data-placeholder="name" x="${nameBox.x}" y="${nameBox.y}" width="${nameBox.width}" height="${nameBox.height}" fill="none" stroke="none"/><text x="31.6" y="80.15" font-family="Georgia, serif" font-size="${nameFontSize.toFixed(2)}" font-weight="bold" text-anchor="middle"${forceNameWidth}>${escapeXml(cardName)}</text></g>`;
+}
+
+async function trackingBackContent(copy, options = {}) {
+  const [template, overlay] = await Promise.all([
+    cardbackTemplateContent(options),
+    trackingOverlayContent(copy),
+  ]);
+  return `${template}${overlay}`;
+}
+
+export async function renderCardbackTemplate() {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="63.5mm" height="88.9mm" viewBox="0 0 63.5 88.9">${await cardbackTemplateContent()}</svg>`;
+}
+
+export async function renderTrackingOverlay(copy) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="63.5mm" height="88.9mm" viewBox="0 0 63.5 88.9">${await trackingOverlayContent(copy)}</svg>`;
 }
 
 export async function renderTrackingBack(copy) {
@@ -107,7 +125,7 @@ export async function renderA4Proof(copies) {
     const y = START_Y + row * CARD_HEIGHT;
     manifest.push({ number: index + 1, copyId: copy.copyId, frontSlot: index, backSlot });
     fronts.push(`<g transform="translate(${frontX} ${y})"><rect width="63.5" height="88.9" fill="white" stroke="#222" stroke-width="0.25"/><text x="31.75" y="37" text-anchor="middle" font-size="20">${index + 1}</text><text x="31.75" y="47" text-anchor="middle" font-size="3.2">${escapeXml(copy.name)}</text><text x="31.75" y="53" text-anchor="middle" font-size="2.5">${escapeXml(copy.copyId.slice(-8))}</text></g>`);
-    backs.push(`<g transform="translate(${backX} ${y})">${await trackingBackContent(copy, { templateHref: `#${templateId}` })}<g data-proof-number="${index + 1}" transform="translate(31.75 74.55)"><path d="M0 -1.6 L1.6 0 L0 1.6 L-1.6 0 Z" fill="white" stroke="#111" stroke-width="0.18"/><text x="0" y="0.58" text-anchor="middle" font-family="Arial, sans-serif" font-size="1.75" font-weight="bold">${index + 1}</text></g></g>`);
+    backs.push(`<g transform="translate(${backX} ${y})">${await trackingBackContent(copy, { templateHref: `#${templateId}` })}</g>`);
   }
   return { frontSvg: pageSvg(fronts.join('')), backSvg: pageSvg(backs.join(''), templateDefinition), manifest };
 }
