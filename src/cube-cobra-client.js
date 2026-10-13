@@ -37,7 +37,7 @@ export async function fetchCubeCobraCsv(value, { fetcher = globalThis.fetch } = 
   const cube = await response.json();
   if (!cube || typeof cube !== 'object' || !cube.cards || typeof cube.cards !== 'object') throw new Error('Cube Cobra returned an invalid cube');
 
-  const rows = [['name', 'Set', 'Collector Number', 'board', 'image URL', 'image Back URL']];
+  const rows = [['name', 'Set', 'Collector Number', 'board', 'image URL', 'image Back URL', 'Cube Cobra Card ID', 'Oracle ID']];
   for (const [board, cards] of Object.entries(cube.cards)) {
     if (!Array.isArray(cards)) continue;
     for (const card of cards) {
@@ -49,6 +49,8 @@ export async function fetchCubeCobraCsv(value, { fetcher = globalThis.fetch } = 
         board,
         cardValue(card, 'imgUrl', 'image_normal', 'image_url', 'imageUrl') || cardValue(details, 'image_normal', 'image_url', 'imageUrl'),
         cardValue(card, 'imgBackUrl', 'image_back', 'image_back_url', 'imageBackUrl') || cardValue(details, 'image_back', 'image_back_url', 'imageBackUrl'),
+        cardValue(card, 'cardID') || cardValue(details, 'scryfall_id'),
+        cardValue(card, 'oracle_id') || cardValue(details, 'oracle_id'),
       ]);
     }
   }

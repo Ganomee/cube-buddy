@@ -52,3 +52,46 @@ export function getCubePerformance(state, cubeId) {
 
   return { cubeId, versionId: version.versionId, cards: [...cardsById.values()] };
 }
+
+export function exportCubePerformance(state, cubeId, { exportedAt } = {}) {
+  if (typeof exportedAt !== 'string' || !Number.isFinite(Date.parse(exportedAt))) {
+    throw new TypeError('An exportedAt date is required');
+  }
+  const cube = state.cubes.find((item) => item.cubeId === cubeId);
+  if (!cube) throw new Error('Unknown cube');
+  const version = cube.versions.find((item) => item.versionId === cube.activeVersionId);
+  if (!version) throw new Error('Active cube version is missing');
+
+  const copies = version.entries.map((entry) => {
+    const performance = totalsForCopy(state.cycles[entry.copyId]);
+    return {
+      copyId: entry.copyId,
+      cardId: entry.cardId,
+      name: entry.name,
+      board: entry.board,
+      cubeCobraCardId: entry.source?.['cube cobra card id'] || null,
+      oracleId: entry.source?.['oracle id'] || null,
+      printing: entry.printing,
+      games: performance.totals.outcomes,
+      wins: performance.totals.wins,
+      losses: performance.totals.losses,
+      winRate: performance.totals.outcomes ? performance.totals.wins / performance.totals.outcomes : null,
+      lastCaptureAt: performance.lastCaptureAt,
+    };
+  });
+
+  return JSON.stringify({
+    format: 'cube-buddy-performance',
+    version: 1,
+    exportedAt,
+    cubeCobraCubeId: cubeId,
+    cubeVersionId: version.versionId,
+    metric: {
+      games: 'player-selected relevant games; draws skipped',
+      wins: 'wins among recorded relevant games',
+      losses: 'recorded games minus wins',
+      scope: 'physical-card observations; no player, deck, match, or draft attribution',
+    },
+    copies,
+  }, null, 2);
+}
