@@ -10,6 +10,8 @@ export default function App({ store }) {
   const [cubeId, setCubeId] = useState(() => state.cubes[0]?.cubeId ?? '');
   const [newCubeId, setNewCubeId] = useState('');
   const [csv, setCsv] = useState('');
+  const [reconciliation, setReconciliation] = useState(null);
+  const [matches, setMatches] = useState({});
   const [qrPayload, setQrPayload] = useState('');
   const [backupJson, setBackupJson] = useState('');
   const [selectedCopyId, setSelectedCopyId] = useState(null);
@@ -58,6 +60,22 @@ export default function App({ store }) {
     event.preventDefault();
     try {
       const id = newCubeId.trim();
+      if (state.cubes.some((item) => item.cubeId === id)) {
+        const result = store.reimportCubeCsv(csv, { cubeId: id });
+        if (result.status === 'needs-review') {
+          setReconciliation({ cubeId: id, ambiguous: result.ambiguous });
+          setMatches({});
+          setMessage('Match each repeated row to its physical copy, or choose a new copy. No new version was saved yet.');
+          setError('');
+          return;
+        }
+        refresh();
+        setCubeId(id);
+        setReconciliation(null);
+        setMessage(`Saved a new cube version. Retained ${result.retainedCopyIds.length} physical copies.`);
+        setError('');
+        return;
+      }
       const result = store.importCubeCsv(csv, { cubeId: id });
       refresh();
       setCubeId(id);
@@ -69,9 +87,31 @@ export default function App({ store }) {
     }
   }
 
+  function saveReconciledVersion(event) {
+    event.preventDefault();
+    try {
+      if (reconciliation.ambiguous.some((row) => !matches[row.sourceRow])) {
+        throw new Error('Choose a physical copy or New physical copy for every repeated row');
+      }
+      const result = store.reimportCubeCsv(csv, { cubeId: reconciliation.cubeId, matches });
+      if (result.status !== 'saved') throw new Error('Some repeated rows still need a physical-copy match');
+      refresh();
+      setCubeId(reconciliation.cubeId);
+      setReconciliation(null);
+      setMatches({});
+      setMessage(`Saved a new cube version. Retained ${result.retainedCopyIds.length} physical copies; ${result.removedCopyIds.length} removed copies remain in history.`);
+      setError('');
+    } catch (cause) {
+      setError(cause.message);
+    }
+  }
+
   async function chooseFile(event) {
     const file = event.target.files?.[0];
-    if (file) setCsv(await file.text());
+    if (file) {
+      setCsv(await file.text());
+      setReconciliation(null);
+    }
   }
 
   function exportBackup() {
@@ -143,10 +183,25 @@ export default function App({ store }) {
         </div>
         <form onSubmit={importCube} className="import-form">
           <label>Cube ID<input value={newCubeId} onChange={(event) => setNewCubeId(event.target.value)} placeholder="my-cube" required /></label>
-          <label>Cube Cobra CSV<textarea value={csv} onChange={(event) => setCsv(event.target.value)} placeholder="Paste exported CSV here" required /></label>
+          <label>Cube Cobra CSV<textarea value={csv} onChange={(event) => { setCsv(event.target.value); setReconciliation(null); }} placeholder="Paste exported CSV here" required /></label>
           <label className="file-label">Or choose a CSV file<input type="file" accept=".csv,text/csv" onChange={chooseFile} /></label>
           <button type="submit">Import cube</button>
         </form>
+        {reconciliation && (
+          <form onSubmit={saveReconciledVersion} className="import-form">
+            <h3>Review repeated physical copies</h3>
+            {reconciliation.ambiguous.map((row) => (
+              <label key={row.sourceRow}>Match CSV row {row.sourceRow}: {row.name || 'Unresolved card'}
+                <select value={matches[row.sourceRow] ?? ''} onChange={(event) => setMatches((current) => ({ ...current, [row.sourceRow]: event.target.value }))} required>
+                  <option value="">Choose a physical copy</option>
+                  {row.candidateCopyIds.map((copyId) => <option key={copyId} value={copyId}>Existing copy {shortId(copyId)}</option>)}
+                  <option value="new">New physical copy</option>
+                </select>
+              </label>
+            ))}
+            <button type="submit">Save reconciled version</button>
+          </form>
+        )}
       </section>
 
       <section className="panel" aria-labelledby="backup-title">
