@@ -125,3 +125,12 @@ test('reimport retains unique physical copies, requires duplicate mapping, and p
   assert.equal(store.getState().cycles[first[3].copyId].length, 1);
   assert.equal(store.getState().cubes[0].activeVersionId, saved.versionId);
 });
+
+test('a changed printing for the same card waits for physical-copy review', () => {
+  const store = createProjectStore(memoryStorage());
+  const original = store.importCubeCsv('name,Set,Collector Number\nSol Ring,C21,263', { cubeId: 'cube-1' }).cube.entries[0];
+  const changed = store.reimportCubeCsv('name,Set,Collector Number\nSol Ring,2XM,270', { cubeId: 'cube-1' });
+  assert.equal(changed.status, 'needs-review');
+  assert.deepEqual(changed.ambiguous[0].candidateCopyIds, [original.copyId]);
+  assert.equal(store.getState().cubes[0].versions.length, 1);
+});
