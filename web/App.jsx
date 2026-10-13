@@ -65,7 +65,7 @@ export default function App({ store }) {
         if (result.status === 'needs-review') {
           setReconciliation({ cubeId: id, ambiguous: result.ambiguous });
           setMatches({});
-          setMessage('Match each repeated row to its physical copy, or choose a new copy. No new version was saved yet.');
+          setMessage('Review each repeated or changed row. Match an existing physical copy or choose a new copy. No new version was saved yet.');
           setError('');
           return;
         }
@@ -91,10 +91,10 @@ export default function App({ store }) {
     event.preventDefault();
     try {
       if (reconciliation.ambiguous.some((row) => !matches[row.sourceRow])) {
-        throw new Error('Choose a physical copy or New physical copy for every repeated row');
+        throw new Error('Choose a physical copy or New physical copy for every row under review');
       }
       const result = store.reimportCubeCsv(csv, { cubeId: reconciliation.cubeId, matches });
-      if (result.status !== 'saved') throw new Error('Some repeated rows still need a physical-copy match');
+      if (result.status !== 'saved') throw new Error('Some rows still need a physical-copy match');
       refresh();
       setCubeId(reconciliation.cubeId);
       setReconciliation(null);
@@ -189,7 +189,7 @@ export default function App({ store }) {
         </form>
         {reconciliation && (
           <form onSubmit={saveReconciledVersion} className="import-form">
-            <h3>Review repeated physical copies</h3>
+            <h3>Review physical copy changes</h3>
             {reconciliation.ambiguous.map((row) => (
               <label key={row.sourceRow}>Match CSV row {row.sourceRow}: {row.name || 'Unresolved card'}
                 <select value={matches[row.sourceRow] ?? ''} onChange={(event) => setMatches((current) => ({ ...current, [row.sourceRow]: event.target.value }))} required>
