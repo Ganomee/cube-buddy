@@ -107,6 +107,18 @@ test('owner exports performance linked to the selected Cube Cobra cube ID', () =
   expect(exported.metric.scope).toMatch(/no player, deck, match, or draft attribution/i);
 });
 
+test('owner can save a Cube Cobra record share link for the selected cube', () => {
+  const project = store();
+  project.importCubeCsv(csv, { cubeId: 'my-cube' });
+  render(<App store={project} />);
+
+  fireEvent.change(screen.getByLabelText('Record share link or token'), { target: { value: 'https://cubecobra.com/cube/record/contribute?token=record.token_123' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save record connection' }));
+
+  expect(screen.getByText('Record connection saved for my-cube.')).toBeTruthy();
+  expect(screen.getByText(/stored only in this browser/i)).toBeTruthy();
+});
+
 test('owner resolves duplicate physical copies before saving a new cube version', () => {
   const project = store();
   const original = 'name,Set,Collector Number\nSol Ring,C21,263\nSol Ring,C21,263';
