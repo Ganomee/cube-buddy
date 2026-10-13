@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { exportCubePerformance, getCubePerformance } from '../src/cube-performance.js';
 import { fetchCubeCobraCsv } from '../src/cube-cobra-client.js';
+import { createCubeCobraConnectionStore } from '../src/cube-cobra-connection.js';
 
 function shortId(copyId) {
   return copyId.slice(-8);
@@ -10,7 +11,7 @@ function printingLabel(printing) {
   return `${printing?.set || 'Unknown set'} #${printing?.collectorNumber || '?'}`;
 }
 
-export default function App({ store, fetcher = globalThis.fetch }) {
+export default function App({ store, fetcher = globalThis.fetch, connectionStorage = globalThis.localStorage }) {
   const [state, setState] = useState(() => store.getState());
   const [cubeId, setCubeId] = useState(() => state.cubes[0]?.cubeId ?? '');
   const [newCubeId, setNewCubeId] = useState('');
@@ -26,6 +27,9 @@ export default function App({ store, fetcher = globalThis.fetch }) {
   const [games, setGames] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [recordToken, setRecordToken] = useState('');
+  const [connectedCubeId, setConnectedCubeId] = useState('');
+  const connectionStore = React.useMemo(() => createCubeCobraConnectionStore(connectionStorage), [connectionStorage]);
 
   const cube = state.cubes.find((item) => item.cubeId === cubeId);
   const performance = cube ? getCubePerformance(state, cubeId) : null;
@@ -165,6 +169,27 @@ export default function App({ store, fetcher = globalThis.fetch }) {
     }
   }
 
+  function saveRecordConnection(event) {
+    event.preventDefault();
+    try {
+      connectionStore.save(cubeId, recordToken);
+      setRecordToken('');
+      setConnectedCubeId(cubeId);
+      setMessage(`Record connection saved for ${cubeId}.`);
+      setError('');
+    } catch (cause) {
+      setError(cause.message);
+    }
+  }
+
+  function removeRecordConnection() {
+    connectionStore.remove(cubeId);
+    setConnectedCubeId('');
+    setRecordToken('');
+    setMessage(`Record connection removed for ${cubeId}.`);
+    setError('');
+  }
+
   function saveReview(event) {
     event.preventDefault();
     try {
@@ -291,6 +316,25 @@ export default function App({ store, fetcher = globalThis.fetch }) {
           <div className="import-form">
             <button type="button" onClick={exportPerformance}>Export performance</button>
             <label>Performance JSON<textarea value={performanceJson} onChange={(event) => setPerformanceJson(event.target.value)} placeholder="Cube-linked performance export appears here" readOnly /></label>
+          </div>
+          <div className="record-connection">
+            <div>
+              <h3>Connect a Cube Cobra record</h3>
+              <ol>
+                <li><a href={`https://cubecobra.com/cube/records/${encodeURIComponent(cubeId)}`} target="_blank" rel="noreferrer">Open this cube's Records page in Cube Cobra</a> and log in.</li>
+                <li>Create or open the record that should receive Cube Buddy entries.</li>
+                <li>Use Cube Cobra's share action and copy the contribution link or token.</li>
+                <li>Paste it below. A share token grants access to that record, so do not share it elsewhere.</li>
+              </ol>
+              <p>The token is stored only in this browser, separately from project backups. It is tied to one Cube Cobra record, not your whole account.</p>
+            </div>
+            <form onSubmit={saveRecordConnection} className="import-form">
+              <label>Record share link or token<input type="password" autoComplete="off" value={recordToken} onChange={(event) => setRecordToken(event.target.value)} placeholder="Paste the copied Cube Cobra share link" required /></label>
+              <div className="copy-actions">
+                <button type="submit">Save record connection</button>
+                {(connectedCubeId === cubeId || connectionStore.get(cubeId)) && <button type="button" className="secondary" onClick={removeRecordConnection}>Remove connection</button>}
+              </div>
+            </form>
           </div>
         </section>
       )}

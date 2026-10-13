@@ -47,4 +47,14 @@ Required server behavior:
 
 ## Existing Records compatibility
 
+### Manual record connection
+
+Cube Buddy now lets the owner prepare an existing Records connection without entering Cube Cobra credentials:
+
+1. Select the cube in Cube Buddy and open its linked Cube Cobra Records page.
+2. Log in to Cube Cobra, create or open the destination record, and use Cube Cobra's share action.
+3. Copy the contribution link or token and paste it into Cube Buddy.
+
+The token is scoped to that existing record. Cube Buddy stores it in separate browser-local integration storage and excludes it from project backups and performance exports. Saving the token does not yet submit data.
+
 If Cube Buddy later captures real events with players, complete decks, rounds, and matches, it can produce a separate Cube Cobra Records export. At that point an official Records API or the existing owner-created record contribution flow may be appropriate. Aggregate physical-card marks alone are insufficient for that conversion.

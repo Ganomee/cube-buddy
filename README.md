@@ -18,6 +18,8 @@ The owner screen exports `cube-buddy-performance` JSON linked to the Cube Cobra 
 
 Cube Cobra URL import uses its public, CORS-enabled cube JSON endpoint and needs no account token. Cube Cobra does not currently document a personal API-token or OAuth flow for account/private-cube access. Use a CSV export when the public endpoint cannot read a cube; do not paste a password or browser session cookie into Cube Buddy.
 
-The proposed safe write-back contract is documented in [`docs/CUBE_COBRA_WRITEBACK.md`](docs/CUBE_COBRA_WRITEBACK.md). It keeps physical-card observations separate from Cube Cobra's event/deck Records data.
+For a future Records contribution, select an imported cube and follow **Connect a Cube Cobra record** in the app. In Cube Cobra, open that cube's Records page, create or open the destination record, use its share action, and paste the copied contribution link or token into Cube Buddy. The token is stored only in that browser and is excluded from project backups. Saving it prepares the connection; automatic contribution is not implemented yet.
+
+The proposed supported write-back contract is documented in [`docs/CUBE_COBRA_WRITEBACK.md`](docs/CUBE_COBRA_WRITEBACK.md).
 
 The preliminary product brief is an input to planning, not an implementation instruction. Proposed defaults and unresolved choices remain explicit decisions in the plan.

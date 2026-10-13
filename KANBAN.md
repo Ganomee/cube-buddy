@@ -27,6 +27,7 @@ Update this board with each story move. IDs and phases come from the project bri
 - [ ] CB-23 (P0/1) Copy review shows sample size, last review date, and the player-selected scope. Awaiting owner workflow review.
 - [ ] CB-37 (P0/1) Local backup/restore and cube-linked performance JSON preserve cube UUID, source card/Oracle IDs, copy IDs, metric scope, and cycles. Direct Cube Cobra write-back is blocked by its session/CSRF routes and incompatible Records event/deck metric.
 - [ ] CB-38 (P0/1) Cube Cobra collaboration contract proposes scoped authentication, idempotent aggregate physical-card observations, revocation, and separation from Records analytics. Owner controls outreach and upstream agreement.
+- [ ] CB-39 (P0/1) Cube Cobra record connection accepts an owner-copied contribution link/token per cube and stores it only in browser-local integration storage. Automatic contribution and residual reconciliation remain pending.
 
 ## Done
 
