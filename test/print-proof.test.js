@@ -7,18 +7,21 @@ const copies = Array.from({ length: 9 }, (_, index) => ({
   name: `Proof card ${index + 1}`,
 }));
 
-test('tracking back has two 50-square count fields, more pick spaces, and identity QR', async () => {
+test('tracking back has two 50-square count fields, twenty two-digit pick spaces, and identity QR', async () => {
   const svg = await renderTrackingBack(copies[0]);
 
   assert.match(svg, /width="63\.5mm"/);
   assert.match(svg, /height="88\.9mm"/);
   assert.equal((svg.match(/data-mark="games"/g) ?? []).length, 50);
   assert.equal((svg.match(/data-mark="wins"/g) ?? []).length, 50);
-  assert.equal((svg.match(/data-pick-box="\d+"/g) ?? []).length, 30);
+  assert.equal((svg.match(/data-pick-box="\d+"/g) ?? []).length, 20);
+  assert.match(svg, /data-pick-box="20"[^>]*width="4\.45"/);
+  assert.match(svg, /data-summary-box="average-pick"[^>]*width="9\.1"/);
+  assert.match(svg, /data-summary-box="draft-count"[^>]*width="9\.1"/);
   assert.match(svg, /Games/);
   assert.match(svg, /Wins/);
-  assert.match(svg, /Average pick/);
-  assert.match(svg, /Drafts/);
+  assert.match(svg, />AVG</);
+  assert.match(svg, />CNT</);
   assert.match(svg, /cube-buddy:copy:00000000-0000-4000-8000-000000000001/);
   assert.doesNotMatch(svg, /data-outcome=/);
 });
