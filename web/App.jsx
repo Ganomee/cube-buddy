@@ -5,6 +5,10 @@ function shortId(copyId) {
   return copyId.slice(-8);
 }
 
+function printingLabel(printing) {
+  return `${printing?.set || 'Unknown set'} #${printing?.collectorNumber || '?'}`;
+}
+
 export default function App({ store }) {
   const [state, setState] = useState(() => store.getState());
   const [cubeId, setCubeId] = useState(() => state.cubes[0]?.cubeId ?? '');
@@ -191,13 +195,17 @@ export default function App({ store }) {
           <form onSubmit={saveReconciledVersion} className="import-form">
             <h3>Review physical copy changes</h3>
             {reconciliation.ambiguous.map((row) => (
-              <label key={row.sourceRow}>Match CSV row {row.sourceRow}: {row.name || 'Unresolved card'}
-                <select value={matches[row.sourceRow] ?? ''} onChange={(event) => setMatches((current) => ({ ...current, [row.sourceRow]: event.target.value }))} required>
-                  <option value="">Choose a physical copy</option>
-                  {row.candidateCopyIds.map((copyId) => <option key={copyId} value={copyId}>Existing copy {shortId(copyId)}</option>)}
-                  <option value="new">New physical copy</option>
-                </select>
-              </label>
+              <div key={row.sourceRow}>
+                <p>Incoming printing: {printingLabel(row.incomingPrinting)}</p>
+                {row.incomingArtwork?.frontUrl && <p>Incoming artwork: {row.incomingArtwork.frontUrl}</p>}
+                <label>Match CSV row {row.sourceRow}: {row.name || 'Unresolved card'}
+                  <select value={matches[row.sourceRow] ?? ''} onChange={(event) => setMatches((current) => ({ ...current, [row.sourceRow]: event.target.value }))} required>
+                    <option value="">Choose a physical copy</option>
+                    {row.candidateCopyIds.map((copyId) => <option key={copyId} value={copyId}>Existing copy {shortId(copyId)} · {printingLabel(row.candidatePrintings[copyId])}{row.candidateArtworks[copyId]?.frontUrl ? ` · ${row.candidateArtworks[copyId].frontUrl}` : ''}</option>)}
+                    <option value="new">New physical copy</option>
+                  </select>
+                </label>
+              </div>
             ))}
             <button type="submit">Save reconciled version</button>
           </form>

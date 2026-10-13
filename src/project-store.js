@@ -148,7 +148,15 @@ export function createProjectStore(storage) {
         } else if (oldGroup.length === 1 && newGroup.length === 1) {
           prior = oldGroup[0];
         } else if (candidates.length > 0) {
-          ambiguous.push({ sourceRow: entry.sourceRow, name: entry.name, candidateCopyIds: candidates.map((item) => item.copyId) });
+          ambiguous.push({
+            sourceRow: entry.sourceRow,
+            name: entry.name,
+            incomingPrinting: entry.printing,
+            incomingArtwork: entry.artwork,
+            candidateCopyIds: candidates.map((item) => item.copyId),
+            candidatePrintings: Object.fromEntries(candidates.map((item) => [item.copyId, item.printing])),
+            candidateArtworks: Object.fromEntries(candidates.map((item) => [item.copyId, item.artwork])),
+          });
         }
         if (prior) {
           if (retained.has(prior.copyId)) throw new Error(`Physical copy ${prior.copyId} was matched more than once`);
