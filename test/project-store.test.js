@@ -103,3 +103,25 @@ test('versioned local backup restores cube mappings and reviewed cycles without 
   assert.throws(() => destination.restoreBackup(backup), /empty project/i);
   assert.throws(() => createProjectStore(memoryStorage()).restoreBackup('{"format":"other"}'), /backup/i);
 });
+
+test('reimport retains unique physical copies, requires duplicate mapping, and preserves removed history', () => {
+  const store = createProjectStore(memoryStorage());
+  const originalCsv = 'name,Set,Collector Number\nSol Ring,C21,263\nLightning Bolt,2XM,116\nLightning Bolt,2XM,116\nForest,M21,273';
+  const first = store.importCubeCsv(originalCsv, { cubeId: 'cube-1' }).cube.entries;
+  const updatedCsv = 'name,Set,Collector Number\nSol Ring,C21,263\nLightning Bolt,2XM,116\nLightning Bolt,2XM,116\nIsland,M21,265';
+
+  const pending = store.reimportCubeCsv(updatedCsv, { cubeId: 'cube-1' });
+  assert.equal(pending.status, 'needs-review');
+  assert.equal(pending.ambiguous.length, 2);
+  assert.equal(store.getState().cubes[0].versions.length, 1);
+
+  const saved = store.reimportCubeCsv(updatedCsv, { cubeId: 'cube-1', matches: { 3: first[1].copyId, 4: first[2].copyId } });
+  assert.equal(saved.status, 'saved');
+  const next = store.getState().cubes[0].versions[1].entries;
+  assert.equal(next[0].copyId, first[0].copyId);
+  assert.equal(next[1].copyId, first[1].copyId);
+  assert.equal(next[2].copyId, first[2].copyId);
+  assert.notEqual(next[3].copyId, first[3].copyId);
+  assert.equal(store.getState().cycles[first[3].copyId].length, 1);
+  assert.equal(store.getState().cubes[0].activeVersionId, saved.versionId);
+});
