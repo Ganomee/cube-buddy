@@ -42,6 +42,10 @@ function validateBackupProject(project) {
   }
 }
 
+function sourceKey(entry) {
+  return JSON.stringify(Object.entries(entry.source).sort(([a], [b]) => a.localeCompare(b)));
+}
+
 export function createProjectStore(storage) {
   if (!storage || typeof storage.getItem !== 'function' || typeof storage.setItem !== 'function') {
     throw new TypeError('A storage provider with getItem and setItem is required');
@@ -100,6 +104,65 @@ export function createProjectStore(storage) {
       }
       commit({ ...state, cubes: [...state.cubes, cube], cycles });
       return imported;
+    },
+
+    reimportCubeCsv(csv, { cubeId, matches = {} } = {}) {
+      const cubeIndex = state.cubes.findIndex((cube) => cube.cubeId === cubeId);
+      if (cubeIndex < 0) throw new Error('Unknown cube');
+      const cube = state.cubes[cubeIndex];
+      const previous = cube.versions.find((version) => version.versionId === cube.activeVersionId);
+      const imported = importCubeCobraCsv(csv, { cubeId, versionId: newId() });
+      const oldByKey = new Map();
+      const newByKey = new Map();
+      const oldCardByName = new Map();
+      for (const entry of previous.entries) {
+        const key = sourceKey(entry);
+        oldByKey.set(key, [...(oldByKey.get(key) ?? []), entry]);
+        if (entry.name) oldCardByName.set(entry.name.toLowerCase(), entry.cardId);
+      }
+      for (const entry of imported.cube.entries) {
+        const key = sourceKey(entry);
+        newByKey.set(key, [...(newByKey.get(key) ?? []), entry]);
+      }
+
+      const ambiguous = [];
+      const retained = new Set();
+      const entries = imported.cube.entries.map((entry) => {
+        const key = sourceKey(entry);
+        const oldGroup = oldByKey.get(key) ?? [];
+        const newGroup = newByKey.get(key);
+        const explicit = Object.hasOwn(matches, entry.sourceRow);
+        let prior;
+        if (explicit) {
+          const choice = matches[entry.sourceRow];
+          if (choice !== 'new') {
+            prior = oldGroup.find((item) => item.copyId === choice);
+            if (!prior || retained.has(choice)) throw new Error(`Invalid or repeated physical-copy match for CSV row ${entry.sourceRow}`);
+          }
+        } else if (oldGroup.length === 1 && newGroup.length === 1) {
+          prior = oldGroup[0];
+        } else if (oldGroup.length > 0) {
+          ambiguous.push({ sourceRow: entry.sourceRow, name: entry.name, candidateCopyIds: oldGroup.map((item) => item.copyId) });
+        }
+        if (prior) retained.add(prior.copyId);
+        return {
+          ...entry,
+          cardId: prior?.cardId ?? oldCardByName.get(entry.name.toLowerCase()) ?? entry.cardId,
+          copyId: prior?.copyId ?? entry.copyId,
+        };
+      });
+      if (ambiguous.length) return { status: 'needs-review', ambiguous, review: imported.review };
+
+      const version = { ...imported.cube, entries };
+      const cycles = { ...state.cycles };
+      for (const entry of entries) {
+        if (!cycles[entry.copyId]) cycles[entry.copyId] = [createTrackingCycle({ copyId: entry.copyId })];
+      }
+      const updatedCube = { ...cube, activeVersionId: version.versionId, versions: [...cube.versions, version] };
+      const cubes = [...state.cubes];
+      cubes[cubeIndex] = updatedCube;
+      commit({ ...state, cubes, cycles });
+      return { status: 'saved', versionId: version.versionId, retainedCopyIds: [...retained], removedCopyIds: previous.entries.filter((entry) => !entries.some((next) => next.copyId === entry.copyId)).map((entry) => entry.copyId), review: imported.review };
     },
 
     reviewCopy(copyId, reviewed) {
