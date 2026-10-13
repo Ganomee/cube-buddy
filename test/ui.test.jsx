@@ -69,3 +69,15 @@ test('owner can export and restore a local project backup', () => {
   expect(screen.getByText('Sol Ring')).toBeTruthy();
   expect(destination.getState()).toEqual(source.getState());
 });
+
+test('review panel gives the copy sample and last review date with scope', () => {
+  const project = store();
+  const imported = project.importCubeCsv(csv, { cubeId: 'my-cube' });
+  project.reviewGameMarks(imported.cube.entries[0].copyId, { games: 10, wins: 6, capturedAt: '2026-10-13T10:00:00Z' });
+  render(<App store={project} />);
+  fireEvent.click(screen.getByRole('button', { name: /Sol Ring copy/i }));
+
+  expect(screen.getByText(/10 recorded relevant-game outcomes for this copy/i)).toBeTruthy();
+  expect(screen.getByText(/Last reviewed 2026-10-13/i)).toBeTruthy();
+  expect(screen.getByText(/Not a full record of all games/i)).toBeTruthy();
+});
