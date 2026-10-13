@@ -7,18 +7,20 @@ const copies = Array.from({ length: 9 }, (_, index) => ({
   name: `Proof card ${index + 1}`,
 }));
 
-test('tracking back has actual card size, 50 numbered W/L slots, and identity QR', async () => {
+test('tracking back has two 50-square count fields, more pick spaces, and identity QR', async () => {
   const svg = await renderTrackingBack(copies[0]);
 
   assert.match(svg, /width="63\.5mm"/);
   assert.match(svg, /height="88\.9mm"/);
-  assert.equal((svg.match(/data-slot="\d+"/g) ?? []).length, 50);
-  assert.match(svg, /data-slot="1"/);
-  assert.match(svg, /data-slot="50"/);
+  assert.equal((svg.match(/data-mark="games"/g) ?? []).length, 50);
+  assert.equal((svg.match(/data-mark="wins"/g) ?? []).length, 50);
+  assert.equal((svg.match(/data-pick-box="\d+"/g) ?? []).length, 30);
+  assert.match(svg, /Games/);
+  assert.match(svg, /Wins/);
   assert.match(svg, /Average pick/);
   assert.match(svg, /Drafts/);
   assert.match(svg, /cube-buddy:copy:00000000-0000-4000-8000-000000000001/);
-  assert.doesNotMatch(svg, /data-outcome="D"/);
+  assert.doesNotMatch(svg, /data-outcome=/);
 });
 
 test('A4 proof keeps each front and back paired across mirrored positions', async () => {
