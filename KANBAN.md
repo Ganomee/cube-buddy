@@ -5,10 +5,10 @@ Update this board with each story move. IDs and phases come from the project bri
 ## In progress
 
 - [ ] CB-20 (P0/1) QR-assisted manual cumulative snapshot entry and deduplication. Current slice: reviewed per-copy counts.
+- [ ] CB-01 (P0/1) Import/select versioned cube. Current slice: Cube Cobra CSV rows, artwork, and unresolved-row review.
 
 ## Ready
 
-- [ ] CB-01 (P0/1) Import/select versioned cube, preserving duplicates and unresolved rows; verify Cube Cobra CSV fixture.
 - [ ] CB-22 (P0/1) Archive/reset cycle and lower-count review.
 - [ ] CB-23 (P0/1) Review observations with sample and date context.
 - [ ] CB-36 (P0/1) Show copy/card observations against cube versions.
