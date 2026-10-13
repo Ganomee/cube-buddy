@@ -24,6 +24,7 @@ export default function App({ store }) {
   const selectedEntry = entries.find((entry) => entry.copyId === selectedCopyId);
   const selectedHistory = selectedCopyId ? state.cycles[selectedCopyId] : null;
   const currentCycle = selectedHistory?.at(-1);
+  const selectedPerformance = performance?.cards.flatMap((card) => card.copies).find((copy) => copy.copyId === selectedCopyId);
 
   function refresh() {
     setState(store.getState());
@@ -200,6 +201,8 @@ export default function App({ store }) {
             <h2 id="review-title">Review {selectedEntry.name || 'unresolved card'}</h2>
             <p>Enter the cumulative Games and Wins marks visible on this copy. Losses are calculated as Games minus Wins. Repeating totals adds no outcomes.</p>
             <p className="cycle-label">Cycle {selectedHistory.length} · {currentCycle.snapshots.length} reviewed snapshots</p>
+            <p>{selectedPerformance.totals.outcomes} recorded relevant-game outcomes for this copy. {selectedPerformance.lastCaptureAt ? `Last reviewed ${selectedPerformance.lastCaptureAt.slice(0, 10)}.` : 'No review date yet.'}</p>
+            <p>Not a full record of all games; only player-selected relevant-game outcomes are counted.</p>
           </div>
           <form onSubmit={saveReview} className="review-form">
             <label>Reviewed games<input type="number" min="0" max="50" step="1" value={games} onChange={(event) => setGames(event.target.value)} required /></label>
