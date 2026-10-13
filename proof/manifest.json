@@ -1,0 +1,56 @@
+[
+  {
+    "number": 1,
+    "copyId": "00000000-0000-4000-8000-000000000001",
+    "frontSlot": 0,
+    "backSlot": 2
+  },
+  {
+    "number": 2,
+    "copyId": "00000000-0000-4000-8000-000000000002",
+    "frontSlot": 1,
+    "backSlot": 1
+  },
+  {
+    "number": 3,
+    "copyId": "00000000-0000-4000-8000-000000000003",
+    "frontSlot": 2,
+    "backSlot": 0
+  },
+  {
+    "number": 4,
+    "copyId": "00000000-0000-4000-8000-000000000004",
+    "frontSlot": 3,
+    "backSlot": 5
+  },
+  {
+    "number": 5,
+    "copyId": "00000000-0000-4000-8000-000000000005",
+    "frontSlot": 4,
+    "backSlot": 4
+  },
+  {
+    "number": 6,
+    "copyId": "00000000-0000-4000-8000-000000000006",
+    "frontSlot": 5,
+    "backSlot": 3
+  },
+  {
+    "number": 7,
+    "copyId": "00000000-0000-4000-8000-000000000007",
+    "frontSlot": 6,
+    "backSlot": 8
+  },
+  {
+    "number": 8,
+    "copyId": "00000000-0000-4000-8000-000000000008",
+    "frontSlot": 7,
+    "backSlot": 7
+  },
+  {
+    "number": 9,
+    "copyId": "00000000-0000-4000-8000-000000000009",
+    "frontSlot": 8,
+    "backSlot": 6
+  }
+]
