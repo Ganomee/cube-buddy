@@ -38,7 +38,7 @@ Inspect Proxxied source, exporter, and actual reuse terms. Establish a per-copy 
 | --- | --- | --- |
 | D-01 | Proxxied source reuse/license and integration boundary | CB-31 implementation/distribution |
 | D-02 | **Decided 13 Oct 2026:** 50 W/L slots; skip draws; mark the printed back with an erasable medium. The exposed edge has two rows: leftmost fields for average pick and number of drafts, with the remaining space open for handwritten positions within a pack. These edge values are filled in by hand; the template does not calculate them. Physical legibility and erasability still require a proof. | CB-19 template approval |
-| D-03 | A4/Letter, flip mode, printer offsets, QR size from proof | CB-32/33 release |
+| D-03 | **A4 and Canon iP7200 series confirmed.** A numbered 9-card SVG proof has been generated. Duplex flip behavior, measured printer offsets, QR readability, and writing/erasing still need the owner's physical trial. | CB-32/33 release |
 | D-04 | **Decided 13 Oct 2026:** draft a placeholder card for a double-faced card, with a tracking back. Use the merged custom front when Cube Cobra supplies one; otherwise make a conventional placeholder showing the card and both faces. Keep the playable card in a separate side pile. | CB-35 bulk export |
 | D-05 | Retain versus replace physical-copy identity on reprint | CB-34 UI approval |
 | D-06 | CSV fields inspected in source; validate with an owner export. CSV has no durable entry/Oracle ID. Supported performance import capability remains unverified. | CB-01 adapter / CB-37 target claim |
