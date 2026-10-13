@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getCubePerformance } from '../src/cube-performance.js';
+import { exportCubePerformance, getCubePerformance } from '../src/cube-performance.js';
 import { fetchCubeCobraCsv } from '../src/cube-cobra-client.js';
 
 function shortId(copyId) {
@@ -20,6 +20,7 @@ export default function App({ store, fetcher = globalThis.fetch }) {
   const [matches, setMatches] = useState({});
   const [qrPayload, setQrPayload] = useState('');
   const [backupJson, setBackupJson] = useState('');
+  const [performanceJson, setPerformanceJson] = useState('');
   const [selectedCopyId, setSelectedCopyId] = useState(null);
   const [wins, setWins] = useState('');
   const [games, setGames] = useState('');
@@ -154,6 +155,16 @@ export default function App({ store, fetcher = globalThis.fetch }) {
     }
   }
 
+  function exportPerformance() {
+    try {
+      setPerformanceJson(exportCubePerformance(store.getState(), cubeId, { exportedAt: new Date().toISOString() }));
+      setMessage('Cube-linked performance JSON is ready. It is a Cube Buddy interchange file, not a direct Cube Cobra Records upload.');
+      setError('');
+    } catch (cause) {
+      setError(cause.message);
+    }
+  }
+
   function saveReview(event) {
     event.preventDefault();
     try {
@@ -276,6 +287,10 @@ export default function App({ store, fetcher = globalThis.fetch }) {
                 </div>
               </article>
             ))}
+          </div>
+          <div className="import-form">
+            <button type="button" onClick={exportPerformance}>Export performance</button>
+            <label>Performance JSON<textarea value={performanceJson} onChange={(event) => setPerformanceJson(event.target.value)} placeholder="Cube-linked performance export appears here" readOnly /></label>
           </div>
         </section>
       )}
