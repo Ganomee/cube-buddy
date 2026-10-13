@@ -81,3 +81,22 @@ test('review panel gives the copy sample and last review date with scope', () =>
   expect(screen.getByText(/Last reviewed 2026-10-13/i)).toBeTruthy();
   expect(screen.getByText(/Not a full record of all games/i)).toBeTruthy();
 });
+
+test('owner resolves duplicate physical copies before saving a new cube version', () => {
+  const project = store();
+  const original = 'name,Set,Collector Number\nSol Ring,C21,263\nSol Ring,C21,263';
+  const first = project.importCubeCsv(original, { cubeId: 'my-cube' }).cube.entries;
+  render(<App store={project} />);
+  fireEvent.change(screen.getByLabelText('Cube ID'), { target: { value: 'my-cube' } });
+  fireEvent.change(screen.getByLabelText('Cube Cobra CSV'), { target: { value: original } });
+  fireEvent.click(screen.getByRole('button', { name: 'Import cube' }));
+
+  expect(screen.getByText(/CSV row 2/i)).toBeTruthy();
+  expect(project.getState().cubes[0].versions).toHaveLength(1);
+  fireEvent.change(screen.getByLabelText(/Match CSV row 2/i), { target: { value: first[0].copyId } });
+  fireEvent.change(screen.getByLabelText(/Match CSV row 3/i), { target: { value: first[1].copyId } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save reconciled version' }));
+
+  expect(project.getState().cubes[0].versions).toHaveLength(2);
+  expect(project.getState().cubes[0].versions[1].entries.map((entry) => entry.copyId)).toEqual(first.map((entry) => entry.copyId));
+});
