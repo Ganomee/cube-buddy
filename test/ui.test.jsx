@@ -32,10 +32,10 @@ test('owner can review cumulative counts and see them on the cube card', () => {
   render(<App store={project} />);
 
   fireEvent.click(screen.getByRole('button', { name: /Sol Ring copy/i }));
-  fireEvent.change(screen.getByLabelText('Reviewed wins'), { target: { value: '10' } });
-  fireEvent.change(screen.getByLabelText('Reviewed losses'), { target: { value: '6' } });
+  fireEvent.change(screen.getByLabelText('Reviewed games'), { target: { value: '10' } });
+  fireEvent.change(screen.getByLabelText('Reviewed wins'), { target: { value: '6' } });
   fireEvent.click(screen.getByRole('button', { name: 'Save reviewed totals' }));
 
-  expect(screen.getByText('10 W / 6 L')).toBeTruthy();
-  expect(screen.getByText('62.5% of 16 recorded relevant-game outcomes')).toBeTruthy();
+  expect(screen.getByText('6 W / 4 L')).toBeTruthy();
+  expect(screen.getByText('60.0% of 10 recorded relevant-game outcomes')).toBeTruthy();
 });

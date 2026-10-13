@@ -68,3 +68,18 @@ test('archived cycles and a fresh active cycle survive reopening', () => {
   assert.equal(cycles[1].status, 'active');
   assert.deepEqual(reopened.reviewCopy(copyId, { wins: 2, losses: 1, capturedAt: '2026-10-14T10:00:00Z' }).delta, { wins: 2, losses: 1 });
 });
+
+test('physical Games and Wins marks become wins and derived losses', () => {
+  const store = createProjectStore(memoryStorage());
+  const imported = store.importCubeCsv(csv, { cubeId: 'cube-1' });
+  const copyId = imported.cube.entries[0].copyId;
+
+  const first = store.reviewGameMarks(copyId, { games: 10, wins: 6, capturedAt: '2026-10-13T10:00:00Z' });
+  const second = store.reviewGameMarks(copyId, { games: 12, wins: 7, capturedAt: '2026-10-13T11:00:00Z' });
+
+  assert.deepEqual(first.delta, { wins: 6, losses: 4 });
+  assert.deepEqual(second.delta, { wins: 1, losses: 1 });
+  assert.equal(store.getState().cycles[copyId][0].snapshots.at(-1).losses, 5);
+  assert.throws(() => store.reviewGameMarks(copyId, { games: 10, wins: 11, capturedAt: '2026-10-13T12:00:00Z' }), /wins/i);
+  assert.throws(() => store.reviewGameMarks(copyId, { games: 51, wins: 0, capturedAt: '2026-10-13T12:00:00Z' }), /50/i);
+});
