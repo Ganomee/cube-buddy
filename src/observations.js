@@ -55,3 +55,7 @@ export function reviewSnapshot(cycle, { snapshotId = randomUUID(), wins, losses,
     cycle: { ...cycle, snapshots: [...cycle.snapshots, snapshot] },
   };
 }
+
+export function archiveAndResetCycle() {
+  throw new Error('Tracking-cycle reset is not implemented');
+}
