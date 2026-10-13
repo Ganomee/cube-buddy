@@ -51,5 +51,9 @@ export function createProjectStore(storage) {
       }
       return result;
     },
+
+    archiveCopy() {
+      throw new Error('Persisted cycle reset is not implemented');
+    },
   };
 }

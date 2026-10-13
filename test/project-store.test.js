@@ -51,3 +51,20 @@ test('an existing cube cannot be silently reimported with new physical-copy IDs'
   assert.throws(() => store.importCubeCsv(csv, { cubeId: 'cube-1' }), /reconciliation/i);
   assert.equal(store.getState().cubes[0].versions.length, 1);
 });
+
+test('archived cycles and a fresh active cycle survive reopening', () => {
+  const storage = memoryStorage();
+  const store = createProjectStore(storage);
+  const imported = store.importCubeCsv(csv, { cubeId: 'cube-1' });
+  const copyId = imported.cube.entries[0].copyId;
+  store.reviewCopy(copyId, { wins: 10, losses: 6, capturedAt: '2026-10-13T10:00:00Z' });
+  store.archiveCopy(copyId, { archivedAt: '2026-10-13T12:00:00Z' });
+
+  const reopened = createProjectStore(storage);
+  const cycles = reopened.getState().cycles[copyId];
+  assert.equal(cycles.length, 2);
+  assert.equal(cycles[0].status, 'archived');
+  assert.equal(cycles[0].snapshots[0].wins, 10);
+  assert.equal(cycles[1].status, 'active');
+  assert.deepEqual(reopened.reviewCopy(copyId, { wins: 2, losses: 1, capturedAt: '2026-10-14T10:00:00Z' }).delta, { wins: 2, losses: 1 });
+});
