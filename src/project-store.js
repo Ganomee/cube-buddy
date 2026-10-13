@@ -113,12 +113,17 @@ export function createProjectStore(storage) {
       const previous = cube.versions.find((version) => version.versionId === cube.activeVersionId);
       const imported = importCubeCobraCsv(csv, { cubeId, versionId: newId() });
       const oldByKey = new Map();
+      const oldByName = new Map();
       const newByKey = new Map();
       const oldCardByName = new Map();
       for (const entry of previous.entries) {
         const key = sourceKey(entry);
         oldByKey.set(key, [...(oldByKey.get(key) ?? []), entry]);
-        if (entry.name) oldCardByName.set(entry.name.toLowerCase(), entry.cardId);
+        if (entry.name) {
+          const name = entry.name.toLowerCase();
+          oldByName.set(name, [...(oldByName.get(name) ?? []), entry]);
+          oldCardByName.set(name, entry.cardId);
+        }
       }
       for (const entry of imported.cube.entries) {
         const key = sourceKey(entry);
@@ -130,21 +135,25 @@ export function createProjectStore(storage) {
       const entries = imported.cube.entries.map((entry) => {
         const key = sourceKey(entry);
         const oldGroup = oldByKey.get(key) ?? [];
+        const candidates = oldGroup.length ? oldGroup : (oldByName.get(entry.name.toLowerCase()) ?? []);
         const newGroup = newByKey.get(key);
         const explicit = Object.hasOwn(matches, entry.sourceRow);
         let prior;
         if (explicit) {
           const choice = matches[entry.sourceRow];
           if (choice !== 'new') {
-            prior = oldGroup.find((item) => item.copyId === choice);
+            prior = candidates.find((item) => item.copyId === choice);
             if (!prior || retained.has(choice)) throw new Error(`Invalid or repeated physical-copy match for CSV row ${entry.sourceRow}`);
           }
         } else if (oldGroup.length === 1 && newGroup.length === 1) {
           prior = oldGroup[0];
-        } else if (oldGroup.length > 0) {
-          ambiguous.push({ sourceRow: entry.sourceRow, name: entry.name, candidateCopyIds: oldGroup.map((item) => item.copyId) });
+        } else if (candidates.length > 0) {
+          ambiguous.push({ sourceRow: entry.sourceRow, name: entry.name, candidateCopyIds: candidates.map((item) => item.copyId) });
         }
-        if (prior) retained.add(prior.copyId);
+        if (prior) {
+          if (retained.has(prior.copyId)) throw new Error(`Physical copy ${prior.copyId} was matched more than once`);
+          retained.add(prior.copyId);
+        }
         return {
           ...entry,
           cardId: prior?.cardId ?? oldCardByName.get(entry.name.toLowerCase()) ?? entry.cardId,
