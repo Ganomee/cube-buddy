@@ -39,3 +39,16 @@ test('owner can review cumulative counts and see them on the cube card', () => {
   expect(screen.getByText('6 W / 4 L')).toBeTruthy();
   expect(screen.getByText('60.0% of 10 recorded relevant-game outcomes')).toBeTruthy();
 });
+
+test('owner can open the right physical copy by its printed QR payload', () => {
+  const project = store();
+  const imported = project.importCubeCsv(`${csv}\nSol Ring,C21,263,https://art.example/sol-ring.jpg`, { cubeId: 'my-cube' });
+  const target = imported.cube.entries[1].copyId;
+  render(<App store={project} />);
+
+  fireEvent.change(screen.getByLabelText('Scan or paste copy QR'), { target: { value: `cube-buddy:copy:${target}` } });
+  fireEvent.click(screen.getByRole('button', { name: 'Open copy' }));
+
+  expect(screen.getByText(`Physical copy ${target.slice(-8)}`)).toBeTruthy();
+  expect(screen.getAllByRole('button', { name: /Sol Ring copy/i })[1].getAttribute('aria-pressed')).toBe('true');
+});
