@@ -28,8 +28,11 @@ function cardValue(card, ...keys) {
   return '';
 }
 
-export async function fetchCubeCobraCsv(value, { fetcher = globalThis.fetch } = {}) {
+export async function fetchCubeCobraCsv(value, { fetcher = globalThis.fetch, boards = ['mainboard'] } = {}) {
   if (typeof fetcher !== 'function') throw new TypeError('A fetch implementation is required');
+  if (!Array.isArray(boards) || boards.length === 0 || boards.some((board) => typeof board !== 'string' || !board)) {
+    throw new TypeError('At least one Cube Cobra board is required');
+  }
   const requestedId = parseCubeCobraId(value);
   const endpoint = `https://cubecobra.com/cube/api/cubeJSON/${encodeURIComponent(requestedId)}`;
   const response = await fetcher(endpoint, { headers: { Accept: 'application/json' } });
@@ -38,8 +41,12 @@ export async function fetchCubeCobraCsv(value, { fetcher = globalThis.fetch } = 
   if (!cube || typeof cube !== 'object' || !cube.cards || typeof cube.cards !== 'object') throw new Error('Cube Cobra returned an invalid cube');
 
   const rows = [['name', 'Set', 'Collector Number', 'board', 'image URL', 'image Back URL', 'Cube Cobra Card ID', 'Oracle ID']];
+  const selectedBoards = new Set(boards);
+  const availableBoards = {};
   for (const [board, cards] of Object.entries(cube.cards)) {
     if (!Array.isArray(cards)) continue;
+    availableBoards[board] = cards.length;
+    if (!selectedBoards.has(board)) continue;
     for (const card of cards) {
       const details = card?.details && typeof card.details === 'object' ? card.details : {};
       rows.push([
@@ -57,6 +64,7 @@ export async function fetchCubeCobraCsv(value, { fetcher = globalThis.fetch } = 
   return {
     cubeId: String(cube.shortId || cube.id || requestedId),
     name: String(cube.name || requestedId),
+    availableBoards,
     csv: rows.map((row) => row.map(csvCell).join(',')).join('\n'),
   };
 }
