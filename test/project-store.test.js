@@ -132,6 +132,8 @@ test('a changed printing for the same card waits for physical-copy review', () =
   const changed = store.reimportCubeCsv('name,Set,Collector Number\nSol Ring,2XM,270', { cubeId: 'cube-1' });
   assert.equal(changed.status, 'needs-review');
   assert.deepEqual(changed.ambiguous[0].candidateCopyIds, [original.copyId]);
+  assert.deepEqual(changed.ambiguous[0].incomingPrinting, { set: '2XM', collectorNumber: '270' });
+  assert.deepEqual(changed.ambiguous[0].candidatePrintings[original.copyId], { set: 'C21', collectorNumber: '263' });
   assert.equal(store.getState().cubes[0].versions.length, 1);
   const saved = store.reimportCubeCsv('name,Set,Collector Number\nSol Ring,2XM,270', { cubeId: 'cube-1', matches: { 2: 'new' } });
   assert.equal(saved.status, 'saved');

@@ -110,6 +110,8 @@ test('owner chooses whether a changed printing is the same physical copy', () =>
   fireEvent.click(screen.getByRole('button', { name: 'Import cube' }));
 
   expect(screen.getByRole('heading', { name: 'Review physical copy changes' })).toBeTruthy();
+  expect(screen.getByText('Incoming printing: 2XM #270')).toBeTruthy();
+  expect(screen.getByRole('option', { name: new RegExp(`Existing copy ${oldCopy.copyId.slice(-8)}.*C21 #263`) })).toBeTruthy();
   expect(project.getState().cubes[0].versions).toHaveLength(1);
   fireEvent.change(screen.getByLabelText(/Match CSV row 2/i), { target: { value: oldCopy.copyId } });
   fireEvent.click(screen.getByRole('button', { name: 'Save reconciled version' }));
