@@ -4,7 +4,7 @@ Update this board with each story move. IDs and phases come from the project bri
 
 ## In progress
 
-- [ ] CB-17 (P0/1) Stable identities for physical card copies. Current slice: creation and explicit reprint identity.
+None.
 
 ## Ready
 
@@ -32,4 +32,4 @@ None.
 
 ## Done
 
-None.
+- [x] CB-17 (P0/1) Domain identity slice: each physical copy gets a UUID; reprints explicitly retain or issue a new ID. Persistence and print-project UI remain part of CB-34.
