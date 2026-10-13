@@ -7,23 +7,19 @@ const copies = Array.from({ length: 9 }, (_, index) => ({
   name: `Proof card ${index + 1}`,
 }));
 
-test('tracking back has two 50-square count fields, twenty two-digit pick spaces, and identity QR', async () => {
+test('tracking back uses the supplied artwork and extracted identity placeholders', async () => {
   const svg = await renderTrackingBack(copies[0]);
 
   assert.match(svg, /width="63\.5mm"/);
   assert.match(svg, /height="88\.9mm"/);
-  assert.equal((svg.match(/data-mark="games"/g) ?? []).length, 50);
-  assert.equal((svg.match(/data-mark="wins"/g) ?? []).length, 50);
-  assert.equal((svg.match(/data-pick-box="\d+"/g) ?? []).length, 20);
-  assert.match(svg, /data-pick-box="20"[^>]*width="4\.8"/);
-  assert.match(svg, /data-summary-box="average-pick"[^>]*width="6\.5"/);
-  assert.match(svg, /data-summary-box="draft-count"[^>]*width="6\.5"/);
-  assert.match(svg, /Games/);
-  assert.match(svg, /Wins/);
-  assert.match(svg, />AVG</);
-  assert.match(svg, />CNT</);
+  assert.match(svg, /data-cardback-template="cardback nice\.png"/);
+  assert.match(svg, /href="data:image\/png;base64,/);
+  assert.match(svg, /data-source-size="1024x1536"/);
+  assert.match(svg, /data-placeholder="qr" x="23\.85" y="36\.1" width="15\.8" height="15\.8"/);
+  assert.match(svg, /data-placeholder="name" x="9\.3" y="76\.1" width="44\.6" height="6\.4"/);
+  assert.match(svg, />Proof card 1</);
+  assert.match(svg, />00000001</);
   assert.match(svg, /cube-buddy:copy:00000000-0000-4000-8000-000000000001/);
-  assert.doesNotMatch(svg, /data-outcome=/);
 });
 
 test('A4 proof keeps each front and back paired across mirrored positions', async () => {
