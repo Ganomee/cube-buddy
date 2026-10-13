@@ -4,7 +4,7 @@ Update this board with each story move. IDs and phases come from the project bri
 
 ## In progress
 
-- [ ] CB-01 (P0/1) Import/select versioned cube. Owner import, local persistence, exact unique-row reuse, duplicate copy mapping, and removed-copy history pass. Changed printing/art pauses for owner mapping. Unresolved-row review and validation with an owner CSV remain.
+- [ ] CB-01 (P0/1) Import/select versioned cube. Owner import, local persistence, exact unique-row reuse, duplicate and changed printing/art mapping with comparison details, and removed-copy history pass. Unresolved-row review and validation with an owner CSV remain.
 
 ## Ready
 

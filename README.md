@@ -2,7 +2,7 @@
 
 Cube Buddy helps owners print a physical Magic cube and collect optional, card-specific relevant-game observations over time.
 
-The current app imports and versions a Cube Cobra CSV, assigns stable physical-copy IDs, reviews cumulative Games and Wins marks, and shows cube performance. Reimport keeps IDs for unique exact matches and asks you to map duplicate rows. It can export and restore a local JSON backup and generate a numbered A4 print proof. See [the project plan](docs/PLAN.md) and [the kanban](KANBAN.md) for scope and decision gates.
+The current app imports and versions a Cube Cobra CSV, assigns stable physical-copy IDs, reviews cumulative Games and Wins marks, and shows cube performance. Reimport keeps IDs for unique exact matches and asks you to map duplicate rows or changed printing/artwork to an existing copy or a new one. It can export and restore a local JSON backup and generate a numbered A4 print proof. See [the project plan](docs/PLAN.md) and [the kanban](KANBAN.md) for scope and decision gates.
 
 ## Development
 
