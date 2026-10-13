@@ -1,0 +1,41 @@
+import React from 'react';
+import { afterEach, expect, test } from 'vitest';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import App from '../web/App.jsx';
+import { createProjectStore } from '../src/project-store.js';
+
+afterEach(cleanup);
+
+function store() {
+  const values = new Map();
+  return createProjectStore({
+    getItem: (key) => values.get(key) ?? null,
+    setItem: (key, value) => values.set(key, value),
+  });
+}
+
+const csv = 'name,Set,Collector Number,image URL\nSol Ring,C21,263,https://art.example/sol-ring.jpg';
+
+test('owner can import a Cube Cobra CSV and find its physical copy', () => {
+  render(<App store={store()} />);
+  fireEvent.change(screen.getByLabelText('Cube ID'), { target: { value: 'my-cube' } });
+  fireEvent.change(screen.getByLabelText('Cube Cobra CSV'), { target: { value: csv } });
+  fireEvent.click(screen.getByRole('button', { name: 'Import cube' }));
+
+  expect(screen.getByText('Sol Ring')).toBeTruthy();
+  expect(screen.getByText('No observations yet')).toBeTruthy();
+});
+
+test('owner can review cumulative counts and see them on the cube card', () => {
+  const project = store();
+  project.importCubeCsv(csv, { cubeId: 'my-cube' });
+  render(<App store={project} />);
+
+  fireEvent.click(screen.getByRole('button', { name: /Sol Ring copy/i }));
+  fireEvent.change(screen.getByLabelText('Reviewed wins'), { target: { value: '10' } });
+  fireEvent.change(screen.getByLabelText('Reviewed losses'), { target: { value: '6' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save reviewed totals' }));
+
+  expect(screen.getByText('10 W / 6 L')).toBeTruthy();
+  expect(screen.getByText('62.5% of 16 recorded relevant-game outcomes')).toBeTruthy();
+});
