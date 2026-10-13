@@ -26,6 +26,21 @@ test('owner can import a Cube Cobra CSV and find its physical copy', () => {
   expect(screen.getByText('No observations yet')).toBeTruthy();
 });
 
+test('owner can load and import a public Cube Cobra URL', async () => {
+  const fetcher = async () => ({
+    ok: true,
+    json: async () => ({ name: 'Live Test Cube', shortId: 'live-test', cards: { mainboard: [{ name: 'Black Lotus', set: 'VMA', collector_number: '4', image_normal: 'https://img.example/lotus.jpg' }] } }),
+  });
+  render(<App store={store()} fetcher={fetcher} />);
+  fireEvent.change(screen.getByLabelText('Cube Cobra URL or ID'), { target: { value: 'https://cubecobra.com/cube/overview/live-test' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Load from Cube Cobra' }));
+
+  expect(await screen.findByDisplayValue('live-test')).toBeTruthy();
+  expect(screen.getByLabelText('Cube Cobra CSV').value).toMatch(/Black Lotus/);
+  fireEvent.click(screen.getByRole('button', { name: 'Import cube' }));
+  expect(screen.getByText('Black Lotus')).toBeTruthy();
+});
+
 test('owner can review cumulative counts and see them on the cube card', () => {
   const project = store();
   project.importCubeCsv(csv, { cubeId: 'my-cube' });
