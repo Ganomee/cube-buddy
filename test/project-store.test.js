@@ -83,3 +83,23 @@ test('physical Games and Wins marks become wins and derived losses', () => {
   assert.throws(() => store.reviewGameMarks(copyId, { games: 10, wins: 11, capturedAt: '2026-10-13T12:00:00Z' }), /wins/i);
   assert.throws(() => store.reviewGameMarks(copyId, { games: 51, wins: 0, capturedAt: '2026-10-13T12:00:00Z' }), /50/i);
 });
+
+test('versioned local backup restores cube mappings and reviewed cycles without replacing existing data', () => {
+  const source = createProjectStore(memoryStorage());
+  const imported = source.importCubeCsv(csv, { cubeId: 'cube-1' });
+  const copyId = imported.cube.entries[0].copyId;
+  source.reviewGameMarks(copyId, { games: 10, wins: 6, capturedAt: '2026-10-13T10:00:00Z' });
+  source.archiveCopy(copyId, { archivedAt: '2026-10-13T11:00:00Z' });
+
+  const backup = source.exportBackup({ exportedAt: '2026-10-13T12:00:00Z' });
+  const parsed = JSON.parse(backup);
+  assert.equal(parsed.format, 'cube-buddy-backup');
+  assert.equal(parsed.version, 1);
+  assert.equal(parsed.project.cubes[0].versions[0].entries[0].source['collector number'], '263');
+
+  const destination = createProjectStore(memoryStorage());
+  destination.restoreBackup(backup);
+  assert.deepEqual(destination.getState(), source.getState());
+  assert.throws(() => destination.restoreBackup(backup), /empty project/i);
+  assert.throws(() => createProjectStore(memoryStorage()).restoreBackup('{"format":"other"}'), /backup/i);
+});
