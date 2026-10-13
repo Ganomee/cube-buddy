@@ -17,7 +17,7 @@ Inspect Proxxied source, exporter, and actual reuse terms. Establish a per-copy 
 
 1. **Identity and import:** CB-17, CB-01. Preserve copies, cube versions, source identifiers, printing and custom art; show unresolved rows for review. File import first; URL route after verification.
 2. **Print workflow:** CB-18, CB-19, CB-31–35. Build a persistent manifest, matching fronts/backs, proof, printer profile, and explicit retain/new-copy reprint actions. Integrate with Proxxied only through a verified route.
-3. **Observation loop:** CB-20, CB-22, CB-23, CB-36. QR identifies a copy. Review cumulative W/L counts per cycle; repeat entry adds zero, lower totals require resolution, reset retains history. Show sample counts, capture dates, unknown scope, and card/copy aggregation.
+3. **Observation loop:** CB-20, CB-22, CB-23, CB-36. QR identifies a copy. Review cumulative Games/Wins marks per cycle, deriving losses; repeat entry adds zero, lower totals require resolution, reset retains history. Show sample counts, capture dates, unknown scope, and card/copy aggregation.
 4. **Interoperability:** CB-37, CB-38. Export/restore versioned records with Cube Cobra mappings and precise metric meaning. Verify supported target import before claiming compatibility; prepare a collaboration proposal. Outreach is a separate owner action.
 
 **Human release gate:** owner completes import → print → mark → QR → review → cube feedback → archive/reset → identity-preserving reprint, including repeat entry, numbered proof, and full-cube export on the intended printer.

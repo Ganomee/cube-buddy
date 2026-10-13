@@ -4,10 +4,7 @@ Update this board with each story move. IDs and phases come from the project bri
 
 ## In progress
 
-- [ ] CB-20 (P0/1) QR-assisted manual cumulative snapshot entry and deduplication. Counts and local persistence pass; QR/owner UI remains.
-- [ ] CB-01 (P0/1) Import/select versioned cube. CSV parsing and local persistence pass; owner review and version reconciliation remain.
-- [ ] CB-22 (P0/1) Archive/reset tracking cycle. Domain behavior and local persistence pass; owner workflow remains.
-- [ ] CB-36 (P0/1) Cube performance view. Aggregation is passing; owner-facing view remains.
+- [ ] CB-01 (P0/1) Import/select versioned cube. CSV parsing, owner import, and local persistence pass; unresolved-row review and version reconciliation remain.
 
 ## Ready
 
@@ -28,6 +25,7 @@ Update this board with each story move. IDs and phases come from the project bri
 ## Review
 
 - [ ] CB-19, CB-33 (P0/1) Revised numbered A4 proof generated with nine fronts, mirrored Games/Wins backs (50 squares each), 30 pick boxes, QR identities, and manifest. Awaiting physical Canon iP7200-series print and owner assessment of registration, scan/readability, and erasability.
+- [ ] CB-20, CB-22, CB-36 (P0/1) Owner flow imports a cube, opens a copy by QR payload, reviews cumulative Games/Wins marks, displays performance, and archives/resets a cycle. Needs owner trial with real cards and copies before release acceptance.
 
 ## Done
 
