@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { importCubeCobraCsv } from './cube-cobra-import.js';
-import { createTrackingCycle, reviewSnapshot } from './observations.js';
+import { archiveAndResetCycle, createTrackingCycle, reviewSnapshot } from './observations.js';
 
 const STORAGE_KEY = 'cube-buddy-project-v1';
 
@@ -52,8 +52,15 @@ export function createProjectStore(storage) {
       return result;
     },
 
-    archiveCopy() {
-      throw new Error('Persisted cycle reset is not implemented');
+    archiveCopy(copyId, options) {
+      const history = state.cycles[copyId];
+      if (!Array.isArray(history) || history.length === 0) throw new Error('Unknown physical copy ID');
+      const result = archiveAndResetCycle(history.at(-1), options);
+      commit({
+        ...state,
+        cycles: { ...state.cycles, [copyId]: [...history.slice(0, -1), result.archivedCycle, result.nextCycle] },
+      });
+      return result;
     },
   };
 }
