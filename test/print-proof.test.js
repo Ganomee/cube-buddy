@@ -24,6 +24,9 @@ test('tracking back uses the supplied artwork and extracted identity placeholder
   assert.equal((svg.match(/data-mark="wins"/g) ?? []).length, 50);
   assert.equal((svg.match(/data-pick-box="\d+"/g) ?? []).length, 20);
   assert.match(svg, /data-pick-box="20"/);
+  assert.match(svg, /data-pick-box="1" x="12\.700"/);
+  assert.match(svg, /data-qr-border="top"/);
+  assert.match(svg, /data-qr-border="bottom"/);
 });
 
 test('A4 proof keeps each front and back paired across mirrored positions', async () => {
@@ -40,6 +43,8 @@ test('A4 proof keeps each front and back paired across mirrored positions', asyn
   });
   assert.equal(proof.manifest[4].backSlot, 4);
   assert.equal(proof.manifest[8].backSlot, 6);
+  assert.match(proof.backSvg, /data-proof-number="1" transform="translate\(31\.75 74\.55\)"/);
+  assert.doesNotMatch(proof.backSvg, /<text x="58" y="84"/);
 });
 
 test('long card names are constrained to the illustrated name plaque', async () => {
@@ -47,7 +52,7 @@ test('long card names are constrained to the illustrated name plaque', async () 
     copyId: copies[0].copyId,
     name: 'This Is an Extremely Long Double-Faced Placeholder Card Name That Must Fit',
   });
-  assert.match(svg, /textLength="42" lengthAdjust="spacingAndGlyphs"/);
+  assert.match(svg, /textLength="43\.2" lengthAdjust="spacingAndGlyphs"/);
 });
 
 test('proof rejects anything except nine distinct physical copies', async () => {
