@@ -37,9 +37,9 @@ Inspect Proxxied source, exporter, and actual reuse terms. Establish a per-copy 
 | ID | Required decision or evidence | Needed before |
 | --- | --- | --- |
 | D-01 | Proxxied source reuse/license and integration boundary | CB-31 implementation/distribution |
-| D-02 | Actual-size back: 25 or 50 slots, draw marks, edge summary, marking surface | CB-19 template approval |
+| D-02 | **Decided 13 Oct 2026:** 50 W/L slots; skip draws; mark the printed back with an erasable medium. Physical legibility and erasability still require a proof. Edge summary remains open. | CB-19 template approval |
 | D-03 | A4/Letter, flip mode, printer offsets, QR size from proof | CB-32/33 release |
-| D-04 | Double-faced card print convention | CB-35 bulk export |
+| D-04 | **Decided 13 Oct 2026:** draft a placeholder card for a double-faced card, with a tracking back. Placeholder front content and how the playable card is supplied need a proof decision. | CB-35 bulk export |
 | D-05 | Retain versus replace physical-copy identity on reprint | CB-34 UI approval |
 | D-06 | Cube Cobra CSV fields and supported performance import capability | CB-01 adapter / CB-37 target claim |
 | D-07 | Mixed-phone transport, authority, recovery | CB-03 multi-phone implementation |

@@ -4,12 +4,11 @@ Update this board with each story move. IDs and phases come from the project bri
 
 ## In progress
 
-None.
+- [ ] CB-20 (P0/1) QR-assisted manual cumulative snapshot entry and deduplication. Current slice: reviewed per-copy counts.
 
 ## Ready
 
 - [ ] CB-01 (P0/1) Import/select versioned cube, preserving duplicates and unresolved rows; verify Cube Cobra CSV fixture.
-- [ ] CB-20 (P0/1) QR-assisted manual cumulative snapshot entry and deduplication.
 - [ ] CB-22 (P0/1) Archive/reset cycle and lower-count review.
 - [ ] CB-23 (P0/1) Review observations with sample and date context.
 - [ ] CB-36 (P0/1) Show copy/card observations against cube versions.
@@ -18,7 +17,7 @@ None.
 
 ## Blocked by decision or proof
 
-- [ ] CB-18, CB-19, CB-31–35 (P0/1) Print and Proxxied integration: D-01–05 and actual-size proof.
+- [ ] CB-18, CB-19, CB-31–35 (P0/1) Print and Proxxied integration: reuse route, edge summary, print profile, placeholder front detail, reprint UX, and actual-size proof. The owner chose 50 slots, no draw marks, erasable printed backs, and a double-faced placeholder with tracking back.
 - [ ] CB-21 (P1/2) Image extraction: depends on approved back template and reviewed snapshot model.
 - [ ] CB-02–06, CB-08–12 (P1/3) Draft session and play: depends on Phase 1 release and D-07.
 - [ ] CB-07 (P1/3) Swiss pairings: D-08.
