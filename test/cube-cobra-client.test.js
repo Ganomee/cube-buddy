@@ -8,7 +8,7 @@ test('accepts a Cube Cobra URL, UUID, or short ID', () => {
   assert.throws(() => parseCubeCobraId('https://example.com/cube/list/nope'), /Cube Cobra/i);
 });
 
-test('fetches public cube JSON and converts every board with selected artwork', async () => {
+test('fetches public cube JSON and imports the mainboard by default', async () => {
   const requests = [];
   const fetcher = async (url) => {
     requests.push(url);
@@ -30,7 +30,21 @@ test('fetches public cube JSON and converts every board with selected artwork', 
   assert.equal(result.cubeId, 'test-cube');
   assert.equal(result.name, 'Test Cube');
   assert.match(result.csv, /Fire \/\/ Ice,MH2,290,mainboard,https:\/\/img\/front\.jpg,https:\/\/img\/back\.jpg/);
-  assert.match(result.csv, /Sol Ring,C21,263,maybeboard,https:\/\/img\/sol\.jpg,/);
+  assert.doesNotMatch(result.csv, /Sol Ring/);
+  assert.deepEqual(result.availableBoards, { mainboard: 1, maybeboard: 1 });
+});
+
+test('can explicitly select additional Cube Cobra boards', async () => {
+  const fetcher = async () => ({
+    ok: true,
+    json: async () => ({ name: 'Test Cube', cards: {
+      mainboard: [{ name: 'Sol Ring', details: { name: 'Sol Ring', set: 'C21', collector_number: '263' } }],
+      maybeboard: [{ name: 'Black Lotus', details: { name: 'Black Lotus', set: 'VMA', collector_number: '4' } }],
+    } }),
+  });
+  const result = await fetchCubeCobraCsv('test-cube', { fetcher, boards: ['mainboard', 'maybeboard'] });
+  assert.match(result.csv, /Sol Ring/);
+  assert.match(result.csv, /Black Lotus/);
 });
 
 test('reads the live Cube Cobra shape from nested details and prefers cube artwork overrides', async () => {
