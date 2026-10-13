@@ -97,6 +97,16 @@ test('review panel gives the copy sample and last review date with scope', () =>
   expect(screen.getByText(/Not a full record of all games/i)).toBeTruthy();
 });
 
+test('owner exports performance linked to the selected Cube Cobra cube ID', () => {
+  const project = store();
+  project.importCubeCsv(csv, { cubeId: '0b0d5ab4-9816-4d1a-b726-bfd211317413' });
+  render(<App store={project} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Export performance' }));
+  const exported = JSON.parse(screen.getByLabelText('Performance JSON').value);
+  expect(exported.cubeCobraCubeId).toBe('0b0d5ab4-9816-4d1a-b726-bfd211317413');
+  expect(exported.metric.scope).toMatch(/no player, deck, match, or draft attribution/i);
+});
+
 test('owner resolves duplicate physical copies before saving a new cube version', () => {
   const project = store();
   const original = 'name,Set,Collector Number\nSol Ring,C21,263\nSol Ring,C21,263';
