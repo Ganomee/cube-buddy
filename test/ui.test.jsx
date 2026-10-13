@@ -100,3 +100,18 @@ test('owner resolves duplicate physical copies before saving a new cube version'
   expect(project.getState().cubes[0].versions).toHaveLength(2);
   expect(project.getState().cubes[0].versions[1].entries.map((entry) => entry.copyId)).toEqual(first.map((entry) => entry.copyId));
 });
+
+test('owner chooses whether a changed printing is the same physical copy', () => {
+  const project = store();
+  const oldCopy = project.importCubeCsv('name,Set,Collector Number\nSol Ring,C21,263', { cubeId: 'my-cube' }).cube.entries[0];
+  render(<App store={project} />);
+  fireEvent.change(screen.getByLabelText('Cube ID'), { target: { value: 'my-cube' } });
+  fireEvent.change(screen.getByLabelText('Cube Cobra CSV'), { target: { value: 'name,Set,Collector Number\nSol Ring,2XM,270' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Import cube' }));
+
+  expect(screen.getByRole('heading', { name: 'Review physical copy changes' })).toBeTruthy();
+  expect(project.getState().cubes[0].versions).toHaveLength(1);
+  fireEvent.change(screen.getByLabelText(/Match CSV row 2/i), { target: { value: oldCopy.copyId } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save reconciled version' }));
+  expect(project.getState().cubes[0].versions[1].entries[0].copyId).toBe(oldCopy.copyId);
+});
