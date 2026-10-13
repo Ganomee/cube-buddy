@@ -11,6 +11,7 @@ export default function App({ store }) {
   const [newCubeId, setNewCubeId] = useState('');
   const [csv, setCsv] = useState('');
   const [qrPayload, setQrPayload] = useState('');
+  const [backupJson, setBackupJson] = useState('');
   const [selectedCopyId, setSelectedCopyId] = useState(null);
   const [wins, setWins] = useState('');
   const [games, setGames] = useState('');
@@ -72,6 +73,25 @@ export default function App({ store }) {
     if (file) setCsv(await file.text());
   }
 
+  function exportBackup() {
+    setBackupJson(store.exportBackup({ exportedAt: new Date().toISOString() }));
+    setMessage('Backup JSON is ready to save. Keep a copy outside this browser.');
+    setError('');
+  }
+
+  function restoreBackup() {
+    try {
+      const restored = store.restoreBackup(backupJson);
+      refresh();
+      setCubeId(restored.cubes[0]?.cubeId ?? '');
+      setSelectedCopyId(null);
+      setMessage(`Restored ${restored.cubes.length} cubes from backup.`);
+      setError('');
+    } catch (cause) {
+      setError(cause.message);
+    }
+  }
+
   function saveReview(event) {
     event.preventDefault();
     try {
@@ -126,6 +146,16 @@ export default function App({ store }) {
           <label className="file-label">Or choose a CSV file<input type="file" accept=".csv,text/csv" onChange={chooseFile} /></label>
           <button type="submit">Import cube</button>
         </form>
+      </section>
+
+      <section className="panel" aria-labelledby="backup-title">
+        <h2 id="backup-title">Local backup</h2>
+        <p>Export all cubes, copy IDs, source mappings, and reviewed cycles. Restore only into an empty project.</p>
+        <label>Backup JSON<textarea value={backupJson} onChange={(event) => setBackupJson(event.target.value)} placeholder="Export or paste a Cube Buddy backup here" /></label>
+        <div className="copy-actions">
+          <button type="button" onClick={exportBackup}>Export backup</button>
+          <button type="button" className="secondary" onClick={restoreBackup}>Restore backup</button>
+        </div>
       </section>
 
       {state.cubes.length > 0 && (
