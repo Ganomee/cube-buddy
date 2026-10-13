@@ -41,13 +41,14 @@ export async function fetchCubeCobraCsv(value, { fetcher = globalThis.fetch } = 
   for (const [board, cards] of Object.entries(cube.cards)) {
     if (!Array.isArray(cards)) continue;
     for (const card of cards) {
+      const details = card?.details && typeof card.details === 'object' ? card.details : {};
       rows.push([
-        cardValue(card, 'name'),
-        cardValue(card, 'set', 'set_code'),
-        cardValue(card, 'collector_number', 'collectorNumber'),
+        cardValue(card, 'name') || cardValue(details, 'name'),
+        cardValue(card, 'set', 'set_code') || cardValue(details, 'set', 'set_code'),
+        cardValue(card, 'collector_number', 'collectorNumber') || cardValue(details, 'collector_number', 'collectorNumber'),
         board,
-        cardValue(card, 'image_normal', 'image_url', 'imageUrl'),
-        cardValue(card, 'image_back', 'image_back_url', 'imageBackUrl'),
+        cardValue(card, 'imgUrl', 'image_normal', 'image_url', 'imageUrl') || cardValue(details, 'image_normal', 'image_url', 'imageUrl'),
+        cardValue(card, 'imgBackUrl', 'image_back', 'image_back_url', 'imageBackUrl') || cardValue(details, 'image_back', 'image_back_url', 'imageBackUrl'),
       ]);
     }
   }
