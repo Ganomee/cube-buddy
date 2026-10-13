@@ -4,12 +4,15 @@ export function createTrackingCycle({ copyId } = {}) {
   if (typeof copyId !== 'string' || copyId.trim() === '') {
     throw new TypeError('A copyId is required');
   }
-  return { cycleId: randomUUID(), copyId, snapshots: [] };
+  return { cycleId: randomUUID(), copyId, status: 'active', snapshots: [] };
 }
 
 export function reviewSnapshot(cycle, { snapshotId = randomUUID(), wins, losses, capturedAt } = {}) {
   if (!cycle || !Array.isArray(cycle.snapshots) || !cycle.cycleId || !cycle.copyId) {
     throw new TypeError('A valid tracking cycle is required');
+  }
+  if (cycle.status === 'archived') {
+    throw new Error('An archived tracking cycle cannot accept snapshots');
   }
   if (typeof snapshotId !== 'string' || snapshotId.trim() === '') {
     throw new TypeError('A snapshotId is required');
@@ -56,6 +59,19 @@ export function reviewSnapshot(cycle, { snapshotId = randomUUID(), wins, losses,
   };
 }
 
-export function archiveAndResetCycle() {
-  throw new Error('Tracking-cycle reset is not implemented');
+export function archiveAndResetCycle(cycle, { archivedAt } = {}) {
+  if (!cycle || !Array.isArray(cycle.snapshots) || !cycle.cycleId || !cycle.copyId) {
+    throw new TypeError('A valid tracking cycle is required');
+  }
+  if (cycle.status === 'archived') {
+    throw new Error('Tracking cycle is already archived');
+  }
+  if (typeof archivedAt !== 'string' || !Number.isFinite(Date.parse(archivedAt))) {
+    throw new TypeError('An archivedAt date is required');
+  }
+
+  return {
+    archivedCycle: { ...cycle, status: 'archived', archivedAt },
+    nextCycle: createTrackingCycle({ copyId: cycle.copyId }),
+  };
 }
