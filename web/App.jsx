@@ -10,6 +10,7 @@ export default function App({ store }) {
   const [cubeId, setCubeId] = useState(() => state.cubes[0]?.cubeId ?? '');
   const [newCubeId, setNewCubeId] = useState('');
   const [csv, setCsv] = useState('');
+  const [qrPayload, setQrPayload] = useState('');
   const [selectedCopyId, setSelectedCopyId] = useState(null);
   const [wins, setWins] = useState('');
   const [games, setGames] = useState('');
@@ -35,6 +36,20 @@ export default function App({ store }) {
     setGames(String((latest?.wins ?? 0) + (latest?.losses ?? 0)));
     setMessage('');
     setError('');
+  }
+
+  function openCopyFromQr(event) {
+    event.preventDefault();
+    const payload = qrPayload.trim();
+    const copyId = payload.startsWith('cube-buddy:copy:') ? payload.slice('cube-buddy:copy:'.length) : '';
+    const match = state.cubes.flatMap((item) => item.versions.flatMap((version) => version.entries.map((entry) => ({ cubeId: item.cubeId, entry })))).find(({ entry }) => entry.copyId === copyId);
+    if (!match) {
+      setError('No imported physical copy matches this QR. Check the scan or import its cube.');
+      return;
+    }
+    setCubeId(match.cubeId);
+    selectCopy(copyId);
+    setQrPayload('');
   }
 
   function importCube(event) {
@@ -124,6 +139,10 @@ export default function App({ store }) {
               {state.cubes.map((item) => <option key={item.cubeId} value={item.cubeId}>{item.cubeId}</option>)}
             </select></label>
           </div>
+          <form onSubmit={openCopyFromQr} className="import-form">
+            <label>Scan or paste copy QR<input value={qrPayload} onChange={(event) => setQrPayload(event.target.value)} placeholder="cube-buddy:copy:..." required /></label>
+            <button type="submit">Open copy</button>
+          </form>
           <div className="card-list">
             {performance.cards.map((card) => (
               <article key={card.cardId} className="card-row">
