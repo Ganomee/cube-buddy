@@ -52,6 +52,16 @@ export function createProjectStore(storage) {
       return result;
     },
 
+    reviewGameMarks(copyId, { games, wins, capturedAt }) {
+      if (!Number.isSafeInteger(games) || games < 0 || games > 50) {
+        throw new RangeError('Games must be a whole number from 0 to 50');
+      }
+      if (!Number.isSafeInteger(wins) || wins < 0 || wins > games) {
+        throw new RangeError('Wins must be a whole number from 0 to Games');
+      }
+      return this.reviewCopy(copyId, { wins, losses: games - wins, capturedAt });
+    },
+
     archiveCopy(copyId, options) {
       const history = state.cycles[copyId];
       if (!Array.isArray(history) || history.length === 0) throw new Error('Unknown physical copy ID');

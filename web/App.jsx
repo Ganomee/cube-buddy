@@ -12,7 +12,7 @@ export default function App({ store }) {
   const [csv, setCsv] = useState('');
   const [selectedCopyId, setSelectedCopyId] = useState(null);
   const [wins, setWins] = useState('');
-  const [losses, setLosses] = useState('');
+  const [games, setGames] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
@@ -32,7 +32,7 @@ export default function App({ store }) {
     const latest = history?.at(-1)?.snapshots.at(-1);
     setSelectedCopyId(copyId);
     setWins(String(latest?.wins ?? 0));
-    setLosses(String(latest?.losses ?? 0));
+    setGames(String((latest?.wins ?? 0) + (latest?.losses ?? 0)));
     setMessage('');
     setError('');
   }
@@ -60,9 +60,9 @@ export default function App({ store }) {
   function saveReview(event) {
     event.preventDefault();
     try {
-      const result = store.reviewCopy(selectedCopyId, {
+      const result = store.reviewGameMarks(selectedCopyId, {
+        games: Number(games),
         wins: Number(wins),
-        losses: Number(losses),
         capturedAt: new Date().toISOString(),
       });
       if (result.status === 'needs-review') {
@@ -84,7 +84,7 @@ export default function App({ store }) {
       store.archiveCopy(selectedCopyId, { archivedAt: new Date().toISOString() });
       refresh();
       setWins('0');
-      setLosses('0');
+      setGames('0');
       setError('');
       setMessage('Cycle archived. A new cycle is ready for this copy.');
     } catch (cause) {
@@ -149,12 +149,12 @@ export default function App({ store }) {
           <div>
             <span className="eyebrow">Physical copy {shortId(selectedCopyId)}</span>
             <h2 id="review-title">Review {selectedEntry.name || 'unresolved card'}</h2>
-            <p>Enter the cumulative W/L marks visible on this copy. Repeating totals adds no outcomes.</p>
+            <p>Enter the cumulative Games and Wins marks visible on this copy. Losses are calculated as Games minus Wins. Repeating totals adds no outcomes.</p>
             <p className="cycle-label">Cycle {selectedHistory.length} · {currentCycle.snapshots.length} reviewed snapshots</p>
           </div>
           <form onSubmit={saveReview} className="review-form">
-            <label>Reviewed wins<input type="number" min="0" step="1" value={wins} onChange={(event) => setWins(event.target.value)} required /></label>
-            <label>Reviewed losses<input type="number" min="0" step="1" value={losses} onChange={(event) => setLosses(event.target.value)} required /></label>
+            <label>Reviewed games<input type="number" min="0" max="50" step="1" value={games} onChange={(event) => setGames(event.target.value)} required /></label>
+            <label>Reviewed wins<input type="number" min="0" max="50" step="1" value={wins} onChange={(event) => setWins(event.target.value)} required /></label>
             <button type="submit">Save reviewed totals</button>
             <button className="secondary" type="button" onClick={archive}>Archive and reset cycle</button>
           </form>
