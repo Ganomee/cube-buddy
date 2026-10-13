@@ -5,6 +5,7 @@
   "scripts": {
     "test": "node --test",
     "test:ui": "vitest run --pool=threads --maxWorkers=1 --no-file-parallelism",
+    "test:cubecobra": "node scripts/check-reference-cube.js",
     "dev": "vite",
     "build": "vite build",
     "proof": "node scripts/generate-proof.js"
