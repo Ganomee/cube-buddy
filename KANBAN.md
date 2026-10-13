@@ -9,7 +9,6 @@ Update this board with each story move. IDs and phases come from the project bri
 ## Ready
 
 - [ ] CB-23 (P0/1) Review observations with sample and date context.
-- [ ] CB-38 (P0/1) Prepare Cube Cobra collaboration contract and sample; owner controls outreach.
 
 ## Blocked by decision or proof
 
@@ -27,6 +26,7 @@ Update this board with each story move. IDs and phases come from the project bri
 - [ ] CB-20, CB-22, CB-36 (P0/1) Owner flow imports a cube, opens a copy by QR payload, reviews cumulative Games/Wins marks, displays performance, and archives/resets a cycle. Needs owner trial with real cards and copies before release acceptance.
 - [ ] CB-23 (P0/1) Copy review shows sample size, last review date, and the player-selected scope. Awaiting owner workflow review.
 - [ ] CB-37 (P0/1) Local backup/restore and cube-linked performance JSON preserve cube UUID, source card/Oracle IDs, copy IDs, metric scope, and cycles. Direct Cube Cobra write-back is blocked by its session/CSRF routes and incompatible Records event/deck metric.
+- [ ] CB-38 (P0/1) Cube Cobra collaboration contract proposes scoped authentication, idempotent aggregate physical-card observations, revocation, and separation from Records analytics. Owner controls outreach and upstream agreement.
 
 ## Done
 
