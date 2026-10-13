@@ -44,7 +44,7 @@ test('reads the live Cube Cobra shape from nested details and prefers cube artwo
           cardID: 'printing-id',
           imgUrl: 'https://custom.example/front.png',
           imgBackUrl: 'https://custom.example/back.png',
-          details: { name: 'Arcbound Javelineer', set: 'mh2', collector_number: '2', image_normal: 'https://default.example/front.webp' },
+          details: { name: 'Arcbound Javelineer', set: 'mh2', collector_number: '2', oracle_id: 'oracle-id', image_normal: 'https://default.example/front.webp' },
         }],
       },
     }),
@@ -52,6 +52,7 @@ test('reads the live Cube Cobra shape from nested details and prefers cube artwo
   const result = await fetchCubeCobraCsv('0b0d5ab4-9816-4d1a-b726-bfd211317413', { fetcher });
   assert.equal(result.cubeId, '0b0d5ab4-9816-4d1a-b726-bfd211317413');
   assert.match(result.csv, /Arcbound Javelineer,mh2,2,mainboard,https:\/\/custom\.example\/front\.png,https:\/\/custom\.example\/back\.png/);
+  assert.match(result.csv, /printing-id,oracle-id/);
 });
 
 test('reports a missing, private, or unavailable cube without exposing credentials', async () => {

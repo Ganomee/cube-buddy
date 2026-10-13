@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { getCubePerformance } from '../src/cube-performance.js';
+import { exportCubePerformance, getCubePerformance } from '../src/cube-performance.js';
 
 const state = {
   schemaVersion: 1,
@@ -9,8 +9,8 @@ const state = {
     activeVersionId: 'v1',
     versions: [{
       cubeId: 'cube-1', versionId: 'v1', entries: [
-        { cardId: 'card-a', copyId: 'copy-a1', name: 'Sol Ring' },
-        { cardId: 'card-a', copyId: 'copy-a2', name: 'Sol Ring' },
+        { cardId: 'card-a', copyId: 'copy-a1', name: 'Sol Ring', board: 'mainboard', printing: { set: 'C21', collectorNumber: '263' }, source: { 'cube cobra card id': 'printing-a', 'oracle id': 'oracle-a' } },
+        { cardId: 'card-a', copyId: 'copy-a2', name: 'Sol Ring', board: 'mainboard', printing: { set: 'C21', collectorNumber: '263' }, source: { 'cube cobra card id': 'printing-b', 'oracle id': 'oracle-a' } },
         { cardId: 'card-b', copyId: 'copy-b1', name: 'Island' },
       ],
     }],
@@ -50,4 +50,26 @@ test('unobserved cards have no rate and are not treated as losses', () => {
   assert.deepEqual(island.totals, { wins: 0, losses: 0, outcomes: 0 });
   assert.equal(island.rate, null);
   assert.equal(island.lastCaptureAt, null);
+});
+
+test('performance export is explicitly linked to the Cube Cobra cube and source card IDs', () => {
+  const exported = JSON.parse(exportCubePerformance(state, 'cube-1', { exportedAt: '2026-10-13T12:00:00Z' }));
+  assert.equal(exported.format, 'cube-buddy-performance');
+  assert.equal(exported.version, 1);
+  assert.equal(exported.cubeCobraCubeId, 'cube-1');
+  assert.equal(exported.metric.games, 'player-selected relevant games; draws skipped');
+  assert.deepEqual(exported.copies[0], {
+    copyId: 'copy-a1',
+    cardId: 'card-a',
+    name: 'Sol Ring',
+    board: 'mainboard',
+    cubeCobraCardId: 'printing-a',
+    oracleId: 'oracle-a',
+    printing: { set: 'C21', collectorNumber: '263' },
+    games: 7,
+    wins: 4,
+    losses: 3,
+    winRate: 4 / 7,
+    lastCaptureAt: '2026-10-13T10:00:00Z',
+  });
 });
