@@ -4,7 +4,7 @@ Update this board with each story move. IDs and phases come from the project bri
 
 ## In progress
 
-- [ ] CB-01 (P0/1) Import/select versioned cube. Public Cube Cobra URL/ID loading, CSV fallback, local persistence, exact unique-row reuse, duplicate and changed printing/art mapping, and removed-copy history pass. Real owner-cube validation and unresolved-row review remain.
+- [ ] CB-01 (P0/1) Import/select versioned cube. Public URL/ID loading was validated against the stored 608-entry owner reference cube; CSV fallback, local persistence, reconciliation, source IDs, and artwork pass. Board-selection default and unresolved-row UI remain.
 
 ## Ready
 
@@ -26,7 +26,7 @@ Update this board with each story move. IDs and phases come from the project bri
 - [ ] CB-19, CB-33 (P0/1) Revised numbered A4 proof generated with nine fronts, mirrored Games/Wins backs (50 squares each), 20 two-digit pick boxes, in-box AVG/CNT fields, QR identities, and manifest. Awaiting physical Canon iP7200-series print and owner assessment of registration, scan/readability, and erasability.
 - [ ] CB-20, CB-22, CB-36 (P0/1) Owner flow imports a cube, opens a copy by QR payload, reviews cumulative Games/Wins marks, displays performance, and archives/resets a cycle. Needs owner trial with real cards and copies before release acceptance.
 - [ ] CB-23 (P0/1) Copy review shows sample size, last review date, and the player-selected scope. Awaiting owner workflow review.
-- [ ] CB-37 (P0/1) Versioned local JSON backup and empty-project restore preserve cube versions, copy IDs, source mappings, and cycles. Owner flow passes; Cube Cobra performance import compatibility is still unverified.
+- [ ] CB-37 (P0/1) Local backup/restore and cube-linked performance JSON preserve cube UUID, source card/Oracle IDs, copy IDs, metric scope, and cycles. Direct Cube Cobra write-back is blocked by its session/CSRF routes and incompatible Records event/deck metric.
 
 ## Done
 

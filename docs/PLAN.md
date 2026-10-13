@@ -46,6 +46,7 @@ Inspect Proxxied source, exporter, and actual reuse terms. Establish a per-copy 
 | D-08 | Swiss scoring, byes, tie-breaks, drops, repeats | CB-07 implementation |
 | D-09 | Team rules, voice language/provider, exact digital service | Phases 5–6 |
 | D-10 | **Decided 13 Oct 2026:** pick order means position within a pack. For a 15-card pack, valid positions are 1–15; use the actual pack size when another size is used. Record pack size with any later digital pick observation so positions can be checked and interpreted. The edge average and draft count remain handwritten. | Later optional digital pick capture |
+| D-11 | **Verified 13 Oct 2026:** Cube Cobra record writes require session authentication, CSRF, and owner permission. Its share token applies only to an existing record and contributor deck plus W/L/D entry. Cube Buddy exports cube-linked performance JSON without claiming Records compatibility. Decide with Cube Cobra whether to add an aggregate physical-card metric API or expand Cube Buddy to event/deck data before automatic write-back. | CB-37/38 write-back |
 
 ## Near-term TDD slices
 
