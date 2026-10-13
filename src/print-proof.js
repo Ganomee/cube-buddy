@@ -16,10 +16,11 @@ async function trackingBackContent({ copyId, name, cycle = 1 }) {
   const payload = `cube-buddy:copy:${copyId}`;
   const qr = await QRCode.toDataURL(payload, { errorCorrectionLevel: 'M', margin: 4, width: 320 });
   const edgeRows = [0, 1].map((row) => {
-    const y = 2.6 + row * 5.1;
-    const label = row === 0 ? 'Average pick' : 'Drafts';
-    const blanks = Array.from({ length: 15 }, (_, index) => `<rect data-pick-box="${row * 15 + index + 1}" x="${18 + index * 2.9}" y="${y - 1.5}" width="2.55" height="3.8" fill="none" stroke="#666" stroke-width="0.18"/>`).join('');
-    return `<text x="2.2" y="${y + 1.1}" font-size="2.3">${label}</text>${blanks}`;
+    const y = 1.2 + row * 5.6;
+    const summary = row === 0 ? 'average-pick' : 'draft-count';
+    const label = row === 0 ? 'AVG' : 'CNT';
+    const blanks = Array.from({ length: 10 }, (_, index) => `<rect data-pick-box="${row * 10 + index + 1}" x="${9.1 + index * 5.25}" y="${y}" width="4.8" height="4.85" fill="none" stroke="#666" stroke-width="0.18"/>`).join('');
+    return `<rect data-summary-box="${summary}" x="1.2" y="${y}" width="6.5" height="4.85" fill="none" stroke="#444" stroke-width="0.2"/><text x="4.45" y="${y + 1.45}" font-size="1.45" text-anchor="middle">${label}</text><line x1="1.2" y1="${y + 1.8}" x2="7.7" y2="${y + 1.8}" stroke="#aaa" stroke-width="0.15"/>${blanks}`;
   }).join('');
   const fields = ['games', 'wins'].map((field, fieldIndex) => {
     const panelX = fieldIndex === 0 ? 2 : 32.3;

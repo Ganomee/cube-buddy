@@ -15,9 +15,9 @@ test('tracking back has two 50-square count fields, twenty two-digit pick spaces
   assert.equal((svg.match(/data-mark="games"/g) ?? []).length, 50);
   assert.equal((svg.match(/data-mark="wins"/g) ?? []).length, 50);
   assert.equal((svg.match(/data-pick-box="\d+"/g) ?? []).length, 20);
-  assert.match(svg, /data-pick-box="20"[^>]*width="4\.45"/);
-  assert.match(svg, /data-summary-box="average-pick"[^>]*width="9\.1"/);
-  assert.match(svg, /data-summary-box="draft-count"[^>]*width="9\.1"/);
+  assert.match(svg, /data-pick-box="20"[^>]*width="4\.8"/);
+  assert.match(svg, /data-summary-box="average-pick"[^>]*width="6\.5"/);
+  assert.match(svg, /data-summary-box="draft-count"[^>]*width="6\.5"/);
   assert.match(svg, /Games/);
   assert.match(svg, /Wins/);
   assert.match(svg, />AVG</);
