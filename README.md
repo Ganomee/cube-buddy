@@ -20,7 +20,9 @@ Cube Cobra URL import uses its public, CORS-enabled cube JSON endpoint and needs
 
 For a future Records contribution, select an imported cube and follow **Connect a Cube Cobra record** in the app. In Cube Cobra, open that cube's Records page, create or open the destination record, use its share action, and paste the copied contribution link or token into Cube Buddy. The token is stored only in that browser and is excluded from project backups. Saving it prepares the connection; automatic contribution is not implemented yet.
 
-For an opt-in read only check of a saved development token, put `CUBE_COBRA_RECORD_SHARE_URL=<complete contribution URL>` in the ignored `.env.local` file and run `npm run test:cubecobra-record`. This confirms that Cube Cobra still accepts the token and serves the expected record contribution page. It does not submit or change a record.
+For live integration testing, put `CUBE_COBRA_RECORD_SHARE_URL=<complete contribution URL>` in the ignored `.env.local` file. By default, `npm run test:cubecobra-record` only checks the contribution page. Add `CUBE_COBRA_ENABLE_WRITE_TEST=1` to run the write tests. They create or update stable Cube Buddy test players, upload a one-card deck and result, read the record back, and compare the saved Oracle ID and W/L/D with the request.
+
+The residual planner subtracts outcomes from real Cube Cobra decks containing a card, ignores its own `Cube Buddy · <Oracle ID>` transport deck, and produces one managed one-card deck for the remaining wins and losses. If Cube Cobra already has more wins or losses than Cube Buddy, it returns `needs-review` and does not manufacture a negative result.
 
 The proposed supported write-back contract is documented in [`docs/CUBE_COBRA_WRITEBACK.md`](docs/CUBE_COBRA_WRITEBACK.md).
 
