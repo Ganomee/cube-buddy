@@ -8,6 +8,8 @@ The current app loads a public Cube Cobra URL or imports a Cube Cobra CSV, versi
 
 Requires Node.js 20 or newer. Run `npm install`, then `npm run dev` for the owner app. Run `npm test`, `npm run test:ui`, and `npm run build` to verify it. On Windows PowerShell, use `npm.cmd` in place of `npm` if script execution is disabled.
 
+Open `/print` in the development server, or select **Open QBuddy Print** in the owner app, to configure the printable card back. The editor supports an uploaded PNG, JPEG, WebP, or SVG background; independent overlay placement and sizing; configurable grids; Cube Buddy values; Proxxied page settings; and either interleaved duplex or manual front-stack/reversed-back ordering.
+
 Run `npm run test:cubecobra` for the opt-in live smoke test against reference cube `0b0d5ab4-9816-4d1a-b726-bfd211317413`. It currently verifies the 358-card mainboard and reports the available maybeboard and basics without importing them.
 
 Run `npm run proof` to regenerate the numbered A4 proof in `proof/`. The proof still needs a 100% scale print on the Canon iP7200 series to confirm front/back alignment, QR reading, and writing/erasing on the intended surface.

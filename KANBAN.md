@@ -30,7 +30,9 @@ Update this board with each story move. IDs and phases come from the project bri
 - [x] CB-39 (P0/1) Cube Cobra record connection accepts an owner-copied contribution link/token per cube and stores it only in browser-local integration storage.
 - [ ] CB-40 (P0/1) Residual Records transport calculates one managed one-card deck per Oracle ID, excludes its own managed players, blocks the entire batch when any residual needs human review, and has passed live create/update/read-back tests including overlapping 10-match and 8-match decks. Bulk owner preview and apply UI remains pending.
 - [ ] CB-41 (P0/1) Artwork-backed tracking card uses the supplied ornamental cardback, exact generated 50 Games / 50 Wins / 20 pick fields, and extracted QR/name bounds. Generated SVG/PNG proof passes layout tests; physical scan, erasability, and duplex verification remain the human gate.
+- [ ] CB-43 (P0/1) QBuddy Print loads a Cube Cobra cube into a visual card-back editor. Every overlay can be shown, moved, and resized independently; grids expose row, column, and square-size controls; preview values can use Cube Buddy state. Awaiting owner browser and print-workflow review.
 
 ## Done
 
 - [x] CB-17 (P0/1) Domain identity slice: each physical copy gets a UUID; reprints explicitly retain or issue a new ID. Persistence and print-project UI remain part of CB-34.
+- [x] CB-42 (P0/1) Print planning supports interleaved duplex or all fronts followed by mirrored backs in reverse sheet order. Playable DFC artwork remains isolated on ending pages.

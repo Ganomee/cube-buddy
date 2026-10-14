@@ -256,6 +256,7 @@ export default function App({ store, fetcher = globalThis.fetch, connectionStora
         <span className="eyebrow">Physical cube, practical feedback</span>
         <h1>Cube Buddy</h1>
         <p>Import your Cube Cobra list, review marked card backs, and see the recorded outcomes on your cube.</p>
+        <a className="header-link" href="/print">Open QBuddy Print</a>
       </header>
 
       <section className="panel import-panel" aria-labelledby="import-title">

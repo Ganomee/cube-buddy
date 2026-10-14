@@ -53,7 +53,7 @@ function sheetPairs(entries, { section, frontKind, backKind, cols, rows }) {
 
 function orderPairs(pairs, duplexMode) {
   if (duplexMode === 'interleaved') return pairs.flatMap(({ front, back }) => [front, back]);
-  return [...pairs.map(({ front }) => front), ...pairs.toReversed().map(({ back }) => back)];
+  return [...pairs.map(({ front }) => front), ...[...pairs].reverse().map(({ back }) => back)];
 }
 
 export function createPrintProject(entries, { printSettings: overrides, duplexMode = 'interleaved' } = {}) {
