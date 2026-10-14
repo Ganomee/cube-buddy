@@ -2,6 +2,7 @@ import React from 'react';
 import { afterEach, expect, test } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import App from '../web/App.jsx';
+import PrintApp from '../web/PrintApp.jsx';
 import { createProjectStore } from '../src/project-store.js';
 
 afterEach(cleanup);
@@ -43,6 +44,46 @@ test('owner can supply Proxxied print settings and prepare isolated DFC pages', 
   expect(plan.engine.name).toBe('Proxxied');
   expect(plan.printSettings.bleedEdgeWidthMm).toBe(1);
   expect(plan.pages.map((page) => page.section)).toEqual(['tracked', 'tracked', 'playable-dfc', 'playable-dfc']);
+});
+
+test('QBuddy Print loads a cube and edits independent overlays on a live canvas', async () => {
+  const fetcher = async () => ({
+    ok: true,
+    json: async () => ({
+      name: 'Print Cube', id: 'print-cube',
+      cards: { mainboard: [{ name: 'Sol Ring', details: { name: 'Sol Ring', set: 'c21', collector_number: '263', image_normal: 'https://img.example/sol.webp', layout: 'normal' } }] },
+    }),
+  });
+  render(<PrintApp store={store()} fetcher={fetcher} />);
+
+  expect(screen.getByRole('heading', { name: 'QBuddy Print' })).toBeTruthy();
+  fireEvent.change(screen.getByLabelText('Cube Cobra link or ID'), { target: { value: 'print-cube' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Load cube for printing' }));
+  expect(await screen.findByText('Loaded Print Cube with 1 printable card.')).toBeTruthy();
+
+  fireEvent.click(screen.getByRole('button', { name: 'Edit Games grid' }));
+  fireEvent.change(screen.getByLabelText('Grid rows'), { target: { value: '3' } });
+  fireEvent.change(screen.getByLabelText('Grid columns'), { target: { value: '4' } });
+  fireEvent.change(screen.getByLabelText('Square side (mm)'), { target: { value: '5' } });
+  expect(screen.getByTestId('overlay-games-grid').style.width).toBe('20mm');
+  expect(screen.getByTestId('overlay-games-grid').style.height).toBe('15mm');
+
+  fireEvent.change(screen.getByLabelText('Preview draft average'), { target: { value: '7.4' } });
+  expect(screen.getByTestId('overlay-draft-average').textContent).toContain('7.4');
+  fireEvent.click(screen.getByLabelText('Show Draft average'));
+  expect(screen.queryByTestId('overlay-draft-average')).toBeNull();
+});
+
+test('QBuddy Print prepares reverse-stack manual duplex output', async () => {
+  const project = store();
+  project.importCubeCsv('name,Set,Collector Number,image URL\nSol Ring,C21,263,https://img.example/sol.webp', { cubeId: 'print-cube' });
+  render(<PrintApp store={project} />);
+
+  fireEvent.change(screen.getByLabelText('Page ordering'), { target: { value: 'manual-stack' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Prepare print job' }));
+  const plan = JSON.parse(screen.getByLabelText('Print job JSON').value);
+  expect(plan.duplexMode).toBe('manual-stack');
+  expect(plan.pages.map((page) => page.kind)).toEqual(['tracked-front', 'tracking-back']);
 });
 
 test('owner can load and import a public Cube Cobra URL', async () => {
