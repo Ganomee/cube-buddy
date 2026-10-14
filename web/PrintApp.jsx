@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { fetchCubeCobraCsv } from '../src/cube-cobra-client.js';
-import { createDefaultPrintLayout, parsePrintTemplate, serializePrintTemplate, updatePrintOverlay } from '../src/print-layout.js';
+import { addPrintTextOverlay, createDefaultPrintLayout, parsePrintTemplate, serializePrintTemplate, updatePrintOverlay } from '../src/print-layout.js';
 import { createPrintProject, DEFAULT_PROXXIED_PRINT_SETTINGS } from '../src/print-project.js';
 
 const BACK_URL = new URL('../src/cardback nice.png', import.meta.url).href;
@@ -27,6 +27,7 @@ function Grid({ overlay }) {
 function OverlayContent({ id, overlay, samples }) {
   if (overlay.grid) return <Grid overlay={overlay} />;
   if (id === 'qr') return <span className="fake-qr">▦</span>;
+  if (overlay.kind === 'custom-text') return overlay.content;
   const prefix = overlay.text?.showLabel && overlay.text.label.trim() ? `${overlay.text.label.trim()} ` : '';
   const values = {
     'draft-average': `${prefix}${samples.draftAverage}`,
@@ -85,6 +86,12 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
   function updateGrid(key, value) {
     const number = Number(value);
     if (number > 0) updateOverlay(selectedId, { grid: { [key]: ['rows', 'columns'].includes(key) ? Math.round(number) : number } });
+  }
+
+  function addTextField() {
+    const added = addPrintTextOverlay(layout);
+    commitLayout(added.layout);
+    setSelectedId(added.id);
   }
 
   useEffect(() => {
@@ -242,6 +249,7 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
       <aside className="panel overlay-list">
         <h2>Fields</h2>
         <p>Each field can be shown, moved, and sized independently.</p>
+        <button type="button" className="add-field" onClick={addTextField}>Add text field</button>
         {Object.entries(layout.overlays).map(([id, overlay]) => <div className={selectedId === id ? 'overlay-row selected' : 'overlay-row'} key={id}>
           <input className="overlay-swatch" data-testid={`legend-${id}`} aria-label={`${overlay.label} color`} type="color" value={overlay.color} style={{ backgroundColor: overlay.color }} onClick={() => setSelectedId(id)} onChange={(event) => updateOverlay(id, { color: event.target.value })} />
           <label className="checkbox-label"><input type="checkbox" checked={overlay.enabled} onChange={(event) => updateOverlay(id, { enabled: event.target.checked })} />Show {overlay.label}</label>
@@ -251,7 +259,7 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
 
       <section className="panel canvas-panel">
         <div className="card-canvas-frame"><div className="card-canvas" ref={canvasRef} style={{ aspectRatio: `${layout.widthMm}/${layout.heightMm}`, backgroundImage: `url("${background}")` }} onPointerMove={moveGesture} onPointerUp={() => setGesture(null)} onPointerCancel={() => setGesture(null)}>
-          {Object.entries(layout.overlays).filter(([, overlay]) => overlay.enabled).map(([id, overlay]) => <div key={id} data-testid={`overlay-${id}`} className={`canvas-overlay ${selectedId === id ? 'active' : ''} ${overlay.grid ? 'grid-overlay' : ''}`} style={{ '--overlay-color': overlay.color, left: `${overlay.xMm}mm`, top: `${overlay.yMm}mm`, width: `${overlay.widthMm}mm`, height: `${overlay.heightMm}mm`, fontFamily: overlay.fontFamily }} onPointerDown={(event) => beginGesture(event, id, 'move')}>
+          {Object.entries(layout.overlays).filter(([, overlay]) => overlay.enabled).map(([id, overlay]) => <div key={id} data-testid={`overlay-${id}`} className={`canvas-overlay ${selectedId === id ? 'active' : ''} ${overlay.grid ? 'grid-overlay' : ''}`} style={{ '--overlay-color': overlay.color, left: `${overlay.xMm}mm`, top: `${overlay.yMm}mm`, width: `${overlay.widthMm}mm`, height: `${overlay.heightMm}mm`, fontFamily: overlay.fontFamily, transform: `rotate(${overlay.rotationDeg}deg)` }} onPointerDown={(event) => beginGesture(event, id, 'move')}>
             <OverlayContent id={id} overlay={overlay} samples={samples} />
             {selectedId === id && <button type="button" aria-label={`Resize ${overlay.label}`} className="resize-handle" onPointerDown={(event) => beginGesture(event, id, 'resize')} />}
           </div>)}
@@ -263,6 +271,8 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
         <h2>{selected.label}</h2>
         <label>Preview card<select value={previewCopyId} onChange={(event) => selectPreviewCard(event.target.value)}><option value="">Example values</option>{entries.map((entry) => <option value={entry.copyId} key={entry.copyId}>{entry.name} · {entry.copyId.slice(-8)}</option>)}</select></label>
         {!selected.grid && selectedId !== 'qr' && <label>Font<select value={selected.fontFamily} onChange={(event) => updateOverlay(selectedId, { fontFamily: event.target.value })}><option value="Trebuchet MS, sans-serif">Clean sans</option><option value="Georgia, serif">Classic serif</option><option value="Palatino Linotype, serif">Book serif</option><option value="Papyrus, fantasy">Fantasy</option><option value="Courier New, monospace">Monospace</option></select></label>}
+        {selected.kind === 'custom-text' && <label>Text content<input value={selected.content} onChange={(event) => updateOverlay(selectedId, { content: event.target.value })} /></label>}
+        <label>Rotation (degrees)<input type="number" step="1" value={selected.rotationDeg} onChange={(event) => updateOverlay(selectedId, { rotationDeg: Number(event.target.value) })} /></label>
         {selected.text && <div className="text-label-controls"><label className="checkbox-label"><input type="checkbox" checked={selected.text.showLabel} onChange={(event) => updateOverlay(selectedId, { text: { showLabel: event.target.checked } })} />Show text label</label><label>Text label<input value={selected.text.label} onChange={(event) => updateOverlay(selectedId, { text: { label: event.target.value } })} /></label></div>}
         <div className="geometry-fields">
           {['xMm', 'yMm', 'widthMm', 'heightMm'].map((key) => <label key={key}>{({ xMm: 'Left (mm)', yMm: 'Top (mm)', widthMm: 'Width (mm)', heightMm: 'Height (mm)' })[key]}<input type="number" min="0" step="0.1" value={selected[key]} onChange={(event) => updateOverlay(selectedId, { [key]: Number(event.target.value) })} /></label>)}

@@ -58,6 +58,7 @@ button.secondary, .copy-actions button { background: #f7faf4; border-color: #cad
 .source-bar { display: grid; grid-template-columns: minmax(280px, 1fr) repeat(3, auto); gap: 18px; align-items: end; }
 .print-workspace { display: grid; grid-template-columns: 270px minmax(390px, 1fr) 270px; gap: 20px; align-items: start; }
 .overlay-list, .inspector { padding: 20px; }
+.add-field { width: 100%; margin-bottom: 10px; }
 .overlay-row { position: relative; padding: 9px 0 9px 22px; border-bottom: 1px solid #e1e9df; }
 .overlay-row.selected { background: #f1f7df; margin-inline: -8px; padding-inline: 8px; }
 .overlay-row.selected { padding-left: 30px; }

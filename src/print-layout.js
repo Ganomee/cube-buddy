@@ -1,5 +1,5 @@
 const overlay = (label, color, xMm, yMm, widthMm, heightMm, extra = {}) => ({
-  label, color, enabled: true, xMm, yMm, widthMm, heightMm, fontFamily: 'Trebuchet MS, sans-serif', ...extra,
+  label, color, enabled: true, xMm, yMm, widthMm, heightMm, rotationDeg: 0, fontFamily: 'Trebuchet MS, sans-serif', ...extra,
 });
 
 export function createDefaultPrintLayout() {
@@ -60,7 +60,16 @@ export function updatePrintOverlay(layout, id, changes) {
     next.grid = { ...current.grid, cellWidthMm: next.widthMm / current.grid.columns, cellHeightMm: next.heightMm / current.grid.rows };
   }
   for (const key of ['xMm', 'yMm', 'widthMm', 'heightMm']) finite(next[key], key);
+  if (!Number.isFinite(next.rotationDeg)) throw new TypeError('rotationDeg must be a number');
   return { ...layout, overlays: { ...layout.overlays, [id]: next } };
+}
+
+export function addPrintTextOverlay(layout) {
+  let number = 1;
+  while (layout.overlays[`custom-text-${number}`]) number += 1;
+  const id = `custom-text-${number}`;
+  const added = overlay('Custom text', '#fff1a8', 18, 42, 27.5, 5, { kind: 'custom-text', content: 'Custom text' });
+  return { id, layout: { ...layout, overlays: { ...layout.overlays, [id]: added } } };
 }
 
 export function serializePrintTemplate(layout) {
@@ -77,6 +86,9 @@ export function parsePrintTemplate(json) {
   for (const [id, item] of Object.entries(layout.overlays)) {
     if (!/^#[0-9a-f]{6}$/i.test(item.color ?? '') || typeof item.enabled !== 'boolean') throw new Error(`Invalid overlay: ${id}`);
     for (const key of ['xMm', 'yMm', 'widthMm', 'heightMm']) finite(item[key], `${id}.${key}`);
+    if (item.rotationDeg !== undefined && !Number.isFinite(item.rotationDeg)) throw new Error(`Invalid overlay rotation: ${id}`);
   }
-  return layout;
+  return { ...layout, overlays: Object.fromEntries(Object.entries(layout.overlays).map(([id, item]) => [id, {
+    rotationDeg: 0, fontFamily: 'Trebuchet MS, sans-serif', ...item,
+  }])) };
 }
