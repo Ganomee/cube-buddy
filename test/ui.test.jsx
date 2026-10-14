@@ -89,13 +89,22 @@ test('QBuddy Print prepares reverse-stack manual duplex output', async () => {
 test('QBuddy Print color-codes fields and applies paper presets live', () => {
   render(<PrintApp store={store()} />);
   fireEvent.click(screen.getByRole('button', { name: 'Edit Copy number' }));
-  fireEvent.change(screen.getByLabelText('Field color'), { target: { value: '#ff0066' } });
+  fireEvent.change(screen.getByLabelText('Copy number color'), { target: { value: '#ff0066' } });
   expect(screen.getByTestId('overlay-copy-number').style.getPropertyValue('--overlay-color')).toBe('#ff0066');
   expect(screen.getByTestId('legend-copy-number').style.backgroundColor).toBe('rgb(255, 0, 102)');
 
   fireEvent.change(screen.getByLabelText('Paper size'), { target: { value: 'letter' } });
   expect(screen.getByLabelText('Page width (mm)').value).toBe('215.9');
   expect(screen.getByLabelText('Page height (mm)').value).toBe('279.4');
+});
+
+test('Print Studio shows bare values by default and allows custom field labels', () => {
+  render(<PrintApp store={store()} />);
+  expect(screen.getByTestId('overlay-draft-average').textContent).toBe('7.5');
+  fireEvent.click(screen.getByRole('button', { name: 'Edit Draft average' }));
+  fireEvent.click(screen.getByLabelText('Show text label'));
+  fireEvent.change(screen.getByLabelText('Text label'), { target: { value: 'PICK AVG' } });
+  expect(screen.getByTestId('overlay-draft-average').textContent).toBe('PICK AVG 7.5');
 });
 
 test('owner can load and import a public Cube Cobra URL', async () => {

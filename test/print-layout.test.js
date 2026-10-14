@@ -13,6 +13,15 @@ test('default editor layout exposes every field as an independent overlay', () =
   assert.deepEqual(layout.overlays['pick-history-grid'].grid, { rows: 2, columns: 10, cellSizeMm: 4.36 });
   assert.equal(layout.overlays['win-percentage'].enabled, true);
   assert.equal(layout.overlays['game-count'].enabled, true);
+  assert.deepEqual(layout.overlays['draft-average'].text, { showLabel: false, label: 'AVG' });
+  assert.deepEqual(layout.overlays['draft-count'].text, { showLabel: false, label: 'DRAFTS' });
+});
+
+test('printed value labels are optional and editable per field', () => {
+  const layout = createDefaultPrintLayout();
+  const updated = updatePrintOverlay(layout, 'win-percentage', { text: { showLabel: true, label: 'RATE' } });
+  assert.deepEqual(updated.overlays['win-percentage'].text, { showLabel: true, label: 'RATE' });
+  assert.equal(layout.overlays['win-percentage'].text.showLabel, false);
 });
 
 test('grid size follows rows, columns, and square side length', () => {
