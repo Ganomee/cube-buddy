@@ -83,6 +83,7 @@ export function importCubeCobraCsv(csv, { cubeId, versionId } = {}) {
       sourceRow: row.line,
       name,
       board: values.board || 'mainboard',
+      layout: values.layout || '',
       printing: { set: values.set, collectorNumber: values['collector number'] },
       artwork: { frontUrl: values['image url'], backUrl: values['image back url'] },
       source: values,

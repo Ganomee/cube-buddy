@@ -47,15 +47,16 @@ test('tracked card pairs come first and playable double-faced pairs occupy endin
   ];
   const project = createPrintProject(entries);
 
-  assert.equal(project.pages.length, 8);
+  assert.equal(project.pages.length, 10);
   assert.deepEqual(project.pages.map((page) => page.kind), [
     'tracked-front', 'tracking-back', 'tracked-front', 'tracking-back',
+    'tracked-front', 'tracking-back',
     'dfc-front', 'dfc-back', 'dfc-front', 'dfc-back',
   ]);
-  assert.equal(project.pages[4].cards[0].copyId, 'copy-12');
-  assert.equal(project.pages[5].cards[2].copyId, 'copy-12');
-  assert.ok(project.pages.slice(0, 4).every((page) => page.section === 'tracked'));
-  assert.ok(project.pages.slice(4).every((page) => page.section === 'playable-dfc'));
+  assert.equal(project.pages[6].cards[0].copyId, 'copy-12');
+  assert.equal(project.pages[7].cards[2].copyId, 'copy-12');
+  assert.ok(project.pages.slice(0, 6).every((page) => page.section === 'tracked'));
+  assert.ok(project.pages.slice(6).every((page) => page.section === 'playable-dfc'));
 });
 
 test('Proxxied card adapter preserves Cube Cobra WebP artwork', () => {

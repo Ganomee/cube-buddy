@@ -40,7 +40,7 @@ export async function fetchCubeCobraCsv(value, { fetcher = globalThis.fetch, boa
   const cube = await response.json();
   if (!cube || typeof cube !== 'object' || !cube.cards || typeof cube.cards !== 'object') throw new Error('Cube Cobra returned an invalid cube');
 
-  const rows = [['name', 'Set', 'Collector Number', 'board', 'image URL', 'image Back URL', 'Cube Cobra Card ID', 'Oracle ID']];
+  const rows = [['name', 'Set', 'Collector Number', 'board', 'image URL', 'image Back URL', 'Cube Cobra Card ID', 'Oracle ID', 'Layout', 'Image Flip URL', 'Scryfall ID']];
   const selectedBoards = new Set(boards);
   const availableBoards = {};
   for (const [board, cards] of Object.entries(cube.cards)) {
@@ -55,9 +55,12 @@ export async function fetchCubeCobraCsv(value, { fetcher = globalThis.fetch, boa
         cardValue(card, 'collector_number', 'collectorNumber') || cardValue(details, 'collector_number', 'collectorNumber'),
         board,
         cardValue(card, 'imgUrl', 'image_normal', 'image_url', 'imageUrl') || cardValue(details, 'image_normal', 'image_url', 'imageUrl'),
-        cardValue(card, 'imgBackUrl', 'image_back', 'image_back_url', 'imageBackUrl') || cardValue(details, 'image_back', 'image_back_url', 'imageBackUrl'),
+        cardValue(card, 'imgBackUrl', 'image_back', 'image_back_url', 'imageBackUrl', 'image_flip') || cardValue(details, 'image_back', 'image_back_url', 'imageBackUrl', 'image_flip'),
         cardValue(card, 'cardID') || cardValue(details, 'scryfall_id'),
         cardValue(card, 'oracle_id') || cardValue(details, 'oracle_id'),
+        cardValue(card, 'layout') || cardValue(details, 'layout'),
+        cardValue(card, 'imgBackUrl', 'image_flip') || cardValue(details, 'image_flip'),
+        cardValue(card, 'scryfall_id') || cardValue(details, 'scryfall_id'),
       ]);
     }
   }
