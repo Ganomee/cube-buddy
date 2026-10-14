@@ -8,9 +8,9 @@ test('default editor layout exposes every field as an independent overlay', () =
     'games-grid', 'wins-grid', 'pick-history-grid', 'draft-average', 'draft-count',
     'win-percentage', 'game-count', 'qr', 'copy-number', 'name',
   ]);
-  assert.deepEqual(layout.overlays['games-grid'].grid, { rows: 5, columns: 10, cellSizeMm: 3.72 });
-  assert.deepEqual(layout.overlays['wins-grid'].grid, { rows: 5, columns: 10, cellSizeMm: 3.72 });
-  assert.deepEqual(layout.overlays['pick-history-grid'].grid, { rows: 2, columns: 10, cellSizeMm: 4.36 });
+  assert.deepEqual(layout.overlays['games-grid'].grid, { lock: 'total', rows: 5, columns: 10, cellWidthMm: 3.72, cellHeightMm: 3.72 });
+  assert.deepEqual(layout.overlays['wins-grid'].grid, { lock: 'total', rows: 5, columns: 10, cellWidthMm: 3.72, cellHeightMm: 3.72 });
+  assert.deepEqual(layout.overlays['pick-history-grid'].grid, { lock: 'total', rows: 2, columns: 10, cellWidthMm: 4.36, cellHeightMm: 4.36 });
   assert.equal(layout.overlays['win-percentage'].enabled, true);
   assert.equal(layout.overlays['game-count'].enabled, true);
   assert.deepEqual(layout.overlays['draft-average'].text, { showLabel: false, label: 'AVG' });
@@ -27,11 +27,26 @@ test('printed value labels are optional and editable per field', () => {
 test('grid size follows rows, columns, and square side length', () => {
   const layout = createDefaultPrintLayout();
   const updated = updatePrintOverlay(layout, 'games-grid', {
-    grid: { rows: 3, columns: 4, cellSizeMm: 5 },
+    grid: { lock: 'unit', rows: 3, columns: 4, cellWidthMm: 5, cellHeightMm: 4 },
   });
   assert.equal(updated.overlays['games-grid'].widthMm, 20);
-  assert.equal(updated.overlays['games-grid'].heightMm, 15);
+  assert.equal(updated.overlays['games-grid'].heightMm, 12);
   assert.deepEqual(updated.overlays['wins-grid'], layout.overlays['wins-grid']);
+});
+
+test('total-size grid lock changes cell dimensions when field counts change', () => {
+  const layout = createDefaultPrintLayout();
+  const updated = updatePrintOverlay(layout, 'games-grid', { grid: { rows: 4, columns: 5 } });
+  assert.equal(updated.overlays['games-grid'].widthMm, layout.overlays['games-grid'].widthMm);
+  assert.equal(updated.overlays['games-grid'].heightMm, layout.overlays['games-grid'].heightMm);
+  assert.equal(updated.overlays['games-grid'].grid.cellWidthMm, 7.44);
+  assert.equal(updated.overlays['games-grid'].grid.cellHeightMm, 4.65);
+});
+
+test('text fields store an independently selected font', () => {
+  const layout = updatePrintOverlay(createDefaultPrintLayout(), 'name', { fontFamily: 'Papyrus, fantasy' });
+  assert.equal(layout.overlays.name.fontFamily, 'Papyrus, fantasy');
+  assert.notEqual(layout.overlays.name.fontFamily, layout.overlays['draft-average'].fontFamily);
 });
 
 test('individual fields can be moved, resized, and disabled', () => {

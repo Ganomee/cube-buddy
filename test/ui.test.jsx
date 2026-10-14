@@ -64,14 +64,29 @@ test('QBuddy Print loads a cube and edits independent overlays on a live canvas'
   fireEvent.click(screen.getByRole('button', { name: 'Edit Games grid' }));
   fireEvent.change(screen.getByLabelText('Grid rows'), { target: { value: '3' } });
   fireEvent.change(screen.getByLabelText('Grid columns'), { target: { value: '4' } });
-  fireEvent.change(screen.getByLabelText('Square side (mm)'), { target: { value: '5' } });
+  expect(screen.getByTestId('overlay-games-grid').style.width).toBe('37.2mm');
+  expect(screen.getByTestId('overlay-games-grid').style.height).toBe('18.6mm');
+  fireEvent.click(screen.getByLabelText('Lock cell size'));
+  fireEvent.change(screen.getByLabelText('Cell width (mm)'), { target: { value: '5' } });
+  fireEvent.change(screen.getByLabelText('Cell height (mm)'), { target: { value: '4' } });
   expect(screen.getByTestId('overlay-games-grid').style.width).toBe('20mm');
-  expect(screen.getByTestId('overlay-games-grid').style.height).toBe('15mm');
+  expect(screen.getByTestId('overlay-games-grid').style.height).toBe('12mm');
 
   fireEvent.change(screen.getByLabelText('Preview draft average'), { target: { value: '7.4' } });
   expect(screen.getByTestId('overlay-draft-average').textContent).toContain('7.4');
   fireEvent.click(screen.getByLabelText('Show Draft average'));
   expect(screen.queryByTestId('overlay-draft-average')).toBeNull();
+});
+
+test('Print Studio supports per-field fonts and Ctrl+Z layout undo', () => {
+  render(<PrintApp store={store()} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Edit Card name' }));
+  fireEvent.change(screen.getByLabelText('Font'), { target: { value: 'Papyrus, fantasy' } });
+  expect(screen.getByTestId('overlay-name').style.fontFamily).toContain('Papyrus');
+  fireEvent.change(screen.getByLabelText('Left (mm)'), { target: { value: '20' } });
+  expect(screen.getByTestId('overlay-name').style.left).toBe('20mm');
+  fireEvent.keyDown(window, { key: 'z', ctrlKey: true });
+  expect(screen.getByTestId('overlay-name').style.left).toBe('9.3mm');
 });
 
 test('QBuddy Print prepares reverse-stack manual duplex output', async () => {
