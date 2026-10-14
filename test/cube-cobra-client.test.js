@@ -69,6 +69,26 @@ test('reads the live Cube Cobra shape from nested details and prefers cube artwo
   assert.match(result.csv, /printing-id,oracle-id/);
 });
 
+test('preserves layout and flip artwork required for printable double-faced cards', async () => {
+  const fetcher = async () => ({
+    ok: true,
+    json: async () => ({
+      id: 'cube-id',
+      cards: { mainboard: [{
+        cardID: 'printing-id',
+        details: {
+          name: 'Delver of Secrets', set: 'inr', collector_number: '60',
+          oracle_id: 'oracle-id', scryfall_id: 'scryfall-id', layout: 'transform',
+          image_normal: 'https://img/front.webp', image_flip: 'https://img/back.webp',
+        },
+      }] },
+    }),
+  });
+
+  const result = await fetchCubeCobraCsv('cube-id', { fetcher });
+  assert.match(result.csv, /transform,https:\/\/img\/back\.webp,scryfall-id/);
+});
+
 test('reports a missing, private, or unavailable cube without exposing credentials', async () => {
   await assert.rejects(
     () => fetchCubeCobraCsv('missing', { fetcher: async () => ({ ok: false, status: 404 }) }),
