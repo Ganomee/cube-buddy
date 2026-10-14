@@ -56,7 +56,7 @@ test('QBuddy Print loads a cube and edits independent overlays on a live canvas'
   });
   render(<PrintApp store={store()} fetcher={fetcher} />);
 
-  expect(screen.getByRole('heading', { name: 'QBuddy Print' })).toBeTruthy();
+  expect(screen.getByRole('heading', { name: 'Print Studio' })).toBeTruthy();
   fireEvent.change(screen.getByLabelText('Cube Cobra link or ID'), { target: { value: 'print-cube' } });
   fireEvent.click(screen.getByRole('button', { name: 'Load cube for printing' }));
   expect(await screen.findByText('Loaded Print Cube with 1 printable card.')).toBeTruthy();

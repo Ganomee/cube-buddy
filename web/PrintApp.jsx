@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useState } from 'react';
 import { fetchCubeCobraCsv } from '../src/cube-cobra-client.js';
-import { createDefaultPrintLayout, updatePrintOverlay } from '../src/print-layout.js';
+import { createDefaultPrintLayout, parsePrintTemplate, serializePrintTemplate, updatePrintOverlay } from '../src/print-layout.js';
 import { createPrintProject, DEFAULT_PROXXIED_PRINT_SETTINGS } from '../src/print-project.js';
 
 const BACK_URL = new URL('../src/cardback nice.png', import.meta.url).href;
@@ -46,11 +46,14 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
   const [projectState, setProjectState] = useState(initialState);
   const [cubeId, setCubeId] = useState(initialCube?.cubeId ?? '');
   const [source, setSource] = useState(initialCube?.cubeId ?? '');
+  const [previewCopyId, setPreviewCopyId] = useState(initialEntry?.copyId ?? '');
   const [layout, setLayout] = useState(createDefaultPrintLayout);
   const [selectedId, setSelectedId] = useState('games-grid');
   const [background, setBackground] = useState(BACK_URL);
   const [duplexMode, setDuplexMode] = useState('interleaved');
   const [settings, setSettings] = useState({ ...DEFAULT_PROXXIED_PRINT_SETTINGS });
+  const [paperSize, setPaperSize] = useState('a4');
+  const [settingsJson, setSettingsJson] = useState(() => JSON.stringify(DEFAULT_PROXXIED_PRINT_SETTINGS, null, 2));
   const [printCurrentState, setPrintCurrentState] = useState(true);
   const [samples, setSamples] = useState({
     draftAverage: '7.5', draftCount: '20',
@@ -86,6 +89,7 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
       const loadedEntries = activeEntries(next, loaded.cubeId);
       setProjectState(next);
       setCubeId(loaded.cubeId);
+      setPreviewCopyId(loadedEntries[0]?.copyId ?? '');
       setMessage(`Loaded ${loaded.name} with ${loadedEntries.length} printable ${loadedEntries.length === 1 ? 'card' : 'cards'}.`);
       setError('');
       if (printCurrentState && loadedEntries[0]) useStoredValues(next, loadedEntries[0]);
@@ -101,12 +105,59 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
     setSamples((current) => ({ ...current, name: entry.name, copyNumber: entry.copyId.slice(-9), gameCount: String(totals.games), winPercentage: String(totals.percentage) }));
   }
 
+  function selectPreviewCard(copyId) {
+    setPreviewCopyId(copyId);
+    const entry = entries.find((item) => item.copyId === copyId);
+    if (entry) useStoredValues(projectState, entry);
+  }
+
   async function uploadBackground(event) {
     const file = event.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = () => setBackground(String(reader.result));
     reader.readAsDataURL(file);
+  }
+
+  async function loadTemplate(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      setLayout(parsePrintTemplate(await file.text()));
+      setMessage(`Loaded print template ${file.name}.`);
+      setError('');
+    } catch (cause) { setError(cause.message); }
+  }
+
+  function saveTemplate() {
+    const json = serializePrintTemplate(layout);
+    globalThis.localStorage?.setItem?.('cube-buddy:print-template:v1', json);
+    const url = URL.createObjectURL(new Blob([json], { type: 'application/json' }));
+    const link = document.createElement('a');
+    link.href = url; link.download = 'cube-buddy-print-template.json'; link.click();
+    URL.revokeObjectURL(url);
+    setMessage('Saved the print template as JSON and in this browser.');
+  }
+
+  function choosePaper(value) {
+    setPaperSize(value);
+    const sizes = { a4: [210, 297], letter: [215.9, 279.4] };
+    if (sizes[value]) setSettings((current) => ({ ...current, pageWidthInches: sizes[value][0] / 25.4, pageHeightInches: sizes[value][1] / 25.4 }));
+  }
+
+  function updatePageMm(key, value) {
+    setPaperSize('custom');
+    setSettings((current) => ({ ...current, [key]: Number(value) / 25.4 }));
+  }
+
+  function applySettingsJson() {
+    try {
+      const parsed = JSON.parse(settingsJson);
+      setSettings((current) => ({ ...current, ...parsed }));
+      setPaperSize('custom');
+      setMessage('Applied the Proxxied-compatible printer profile.');
+      setError('');
+    } catch { setError('Printer profile must be valid JSON.'); }
   }
 
   function beginGesture(event, id, kind) {
@@ -146,7 +197,7 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
   return <main className="shell print-shell">
     <header className="masthead print-masthead">
       <span className="eyebrow">Cube Buddy print studio</span>
-      <h1>QBuddy Print</h1>
+      <h1>Print Studio</h1>
       <p>Arrange an erasable card back, preview real values, and prepare mirrored pages for Proxxied.</p>
       <a className="header-link" href="/">Back to Cube Buddy</a>
     </header>
@@ -160,6 +211,8 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
         <button type="submit">Load cube for printing</button>
       </form>
       <label className="file-label">Upload card back<input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={uploadBackground} /></label>
+      <label className="file-label">Load overlay template<input type="file" accept="application/json,.json" onChange={loadTemplate} /></label>
+      <button type="button" onClick={saveTemplate}>Save print template</button>
     </section>
 
     <section className="print-workspace">
@@ -167,23 +220,26 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
         <h2>Fields</h2>
         <p>Each field can be shown, moved, and sized independently.</p>
         {Object.entries(layout.overlays).map(([id, overlay]) => <div className={selectedId === id ? 'overlay-row selected' : 'overlay-row'} key={id}>
+          <span className="overlay-swatch" data-testid={`legend-${id}`} style={{ backgroundColor: overlay.color }} />
           <label className="checkbox-label"><input type="checkbox" checked={overlay.enabled} onChange={(event) => updateOverlay(id, { enabled: event.target.checked })} />Show {overlay.label}</label>
           <button type="button" className="secondary" onClick={() => setSelectedId(id)}>Edit {overlay.label}</button>
         </div>)}
       </aside>
 
       <section className="panel canvas-panel">
-        <div className="card-canvas" ref={canvasRef} style={{ aspectRatio: `${layout.widthMm}/${layout.heightMm}`, backgroundImage: `url("${background}")` }} onPointerMove={moveGesture} onPointerUp={() => setGesture(null)} onPointerCancel={() => setGesture(null)}>
-          {Object.entries(layout.overlays).filter(([, overlay]) => overlay.enabled).map(([id, overlay]) => <div key={id} data-testid={`overlay-${id}`} className={`canvas-overlay ${selectedId === id ? 'active' : ''} ${overlay.grid ? 'grid-overlay' : ''}`} style={{ left: `${overlay.xMm}mm`, top: `${overlay.yMm}mm`, width: `${overlay.widthMm}mm`, height: `${overlay.heightMm}mm` }} onPointerDown={(event) => beginGesture(event, id, 'move')}>
+        <div className="card-canvas-frame"><div className="card-canvas" ref={canvasRef} style={{ aspectRatio: `${layout.widthMm}/${layout.heightMm}`, backgroundImage: `url("${background}")` }} onPointerMove={moveGesture} onPointerUp={() => setGesture(null)} onPointerCancel={() => setGesture(null)}>
+          {Object.entries(layout.overlays).filter(([, overlay]) => overlay.enabled).map(([id, overlay]) => <div key={id} data-testid={`overlay-${id}`} className={`canvas-overlay ${selectedId === id ? 'active' : ''} ${overlay.grid ? 'grid-overlay' : ''}`} style={{ '--overlay-color': overlay.color, left: `${overlay.xMm}mm`, top: `${overlay.yMm}mm`, width: `${overlay.widthMm}mm`, height: `${overlay.heightMm}mm` }} onPointerDown={(event) => beginGesture(event, id, 'move')}>
             <OverlayContent id={id} overlay={overlay} samples={samples} />
             {selectedId === id && <button type="button" aria-label={`Resize ${overlay.label}`} className="resize-handle" onPointerDown={(event) => beginGesture(event, id, 'resize')} />}
           </div>)}
-        </div>
+        </div></div>
         <p className="canvas-hint">Drag a field to move it. Drag its lower-right handle to resize it.</p>
       </section>
 
       <aside className="panel inspector">
         <h2>{selected.label}</h2>
+        <label>Preview card<select value={previewCopyId} onChange={(event) => selectPreviewCard(event.target.value)}><option value="">Example values</option>{entries.map((entry) => <option value={entry.copyId} key={entry.copyId}>{entry.name} · {entry.copyId.slice(-8)}</option>)}</select></label>
+        <label>Field color<input type="color" value={selected.color} onChange={(event) => updateOverlay(selectedId, { color: event.target.value })} /></label>
         <div className="geometry-fields">
           {['xMm', 'yMm', 'widthMm', 'heightMm'].map((key) => <label key={key}>{({ xMm: 'Left (mm)', yMm: 'Top (mm)', widthMm: 'Width (mm)', heightMm: 'Height (mm)' })[key]}<input type="number" min="0" step="0.1" value={selected[key]} onChange={(event) => updateOverlay(selectedId, { [key]: Number(event.target.value) })} /></label>)}
         </div>
@@ -203,18 +259,24 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
 
     <section className="panel">
       <h2>Page setup</h2>
-      <p>These settings are carried into the Proxxied print plan. Manual stack mode prints all fronts first, then mirrored backs from the last sheet to the first.</p>
+      <p>These settings control our Proxxied-compatible PDF layout. The printer profile JSON is an editable settings object, not the generated card data. It can carry page size, grid, guides, bleed, and separate front/back offsets for duplex registration.</p>
       <form className="print-form" onSubmit={prepare}>
         <div className="print-settings">
           <label>Page ordering<select value={duplexMode} onChange={(event) => setDuplexMode(event.target.value)}><option value="interleaved">Front, back per sheet</option><option value="manual-stack">All fronts, reversed backs</option></select></label>
+          <label>Paper size<select value={paperSize} onChange={(event) => choosePaper(event.target.value)}><option value="a4">A4</option><option value="letter">US Letter</option><option value="custom">Custom</option></select></label>
           <label>Columns<input type="number" min="1" value={settings.cols} onChange={(event) => setSettings({ ...settings, cols: Number(event.target.value) })} /></label>
           <label>Rows<input type="number" min="1" value={settings.rows} onChange={(event) => setSettings({ ...settings, rows: Number(event.target.value) })} /></label>
           <label>Guide width (px)<input type="number" min="0" step="0.1" value={settings.guideWidthPx} onChange={(event) => setSettings({ ...settings, guideWidthPx: Number(event.target.value) })} /></label>
-          <label>Page width (in)<input type="number" min="1" step="any" value={settings.pageWidthInches} onChange={(event) => setSettings({ ...settings, pageWidthInches: Number(event.target.value) })} /></label>
-          <label>Page height (in)<input type="number" min="1" step="any" value={settings.pageHeightInches} onChange={(event) => setSettings({ ...settings, pageHeightInches: Number(event.target.value) })} /></label>
+          <label>Page width (mm)<input type="number" min="1" step="0.1" value={Number((settings.pageWidthInches * 25.4).toFixed(2))} onChange={(event) => updatePageMm('pageWidthInches', event.target.value)} /></label>
+          <label>Page height (mm)<input type="number" min="1" step="0.1" value={Number((settings.pageHeightInches * 25.4).toFixed(2))} onChange={(event) => updatePageMm('pageHeightInches', event.target.value)} /></label>
+          <label>Front X offset (mm)<input type="number" step="0.1" value={settings.frontOffsetXmm} onChange={(event) => setSettings({ ...settings, frontOffsetXmm: Number(event.target.value) })} /></label>
+          <label>Front Y offset (mm)<input type="number" step="0.1" value={settings.frontOffsetYmm} onChange={(event) => setSettings({ ...settings, frontOffsetYmm: Number(event.target.value) })} /></label>
+          <label>Back X offset (mm)<input type="number" step="0.1" value={settings.backOffsetXmm} onChange={(event) => setSettings({ ...settings, backOffsetXmm: Number(event.target.value) })} /></label>
+          <label>Back Y offset (mm)<input type="number" step="0.1" value={settings.backOffsetYmm} onChange={(event) => setSettings({ ...settings, backOffsetYmm: Number(event.target.value) })} /></label>
           <label>Page color<input type="color" value={settings.pdfPageColor} onChange={(event) => setSettings({ ...settings, pdfPageColor: event.target.value })} /></label>
           <button type="submit">Prepare print job</button>
         </div>
+        <div className="profile-json"><label>Proxxied printer profile JSON<textarea value={settingsJson} onChange={(event) => setSettingsJson(event.target.value)} /></label><button type="button" className="secondary" onClick={applySettingsJson}>Apply printer profile JSON</button></div>
         <label>Print job JSON<textarea readOnly value={planJson} /></label>
       </form>
     </section>

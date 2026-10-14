@@ -94,8 +94,11 @@ async function renderPage(page, settings, { dpi, resolveCardImage }) {
   const bleed = settings.bleedEdge ? mmPixels(settings.bleedEdgeWidthMm, dpi) : 0;
   const cardWidth = contentWidth + bleed * 2;
   const cardHeight = contentHeight + bleed * 2;
-  const startX = Math.round((pageWidth - settings.cols * cardWidth) / 2);
-  const startY = Math.round((pageHeight - settings.rows * cardHeight) / 2);
+  const isBack = page.kind === 'tracking-back' || page.kind === 'dfc-back';
+  const offsetX = mmPixels((isBack ? settings.backOffsetXmm : settings.frontOffsetXmm) ?? 0, dpi);
+  const offsetY = mmPixels((isBack ? settings.backOffsetYmm : settings.frontOffsetYmm) ?? 0, dpi);
+  const startX = Math.round((pageWidth - settings.cols * cardWidth) / 2) + offsetX;
+  const startY = Math.round((pageHeight - settings.rows * cardHeight) / 2) + offsetY;
   if (startX < 0 || startY < 0) throw new Error('Proxxied print settings do not fit the card grid on the page');
 
   const composites = [];

@@ -10,6 +10,10 @@ export const DEFAULT_PROXXIED_PRINT_SETTINGS = Object.freeze({
   pdfPageColor: '#FFFFFF',
   cols: 3,
   rows: 3,
+  frontOffsetXmm: 0,
+  frontOffsetYmm: 0,
+  backOffsetXmm: 0,
+  backOffsetYmm: 0,
 });
 
 function printSettings(overrides = {}) {
@@ -19,6 +23,9 @@ function printSettings(overrides = {}) {
   }
   for (const key of ['bleedEdgeWidthMm', 'guideWidthPx', 'pageWidthInches', 'pageHeightInches']) {
     if (!Number.isFinite(settings[key]) || settings[key] < 0) throw new TypeError(`Invalid Proxxied setting: ${key}`);
+  }
+  for (const key of ['frontOffsetXmm', 'frontOffsetYmm', 'backOffsetXmm', 'backOffsetYmm']) {
+    if (!Number.isFinite(settings[key])) throw new TypeError(`Invalid Proxxied setting: ${key}`);
   }
   return Object.freeze(settings);
 }
