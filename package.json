@@ -9,15 +9,18 @@
     "test:cubecobra-record": "node --env-file-if-exists=.env.local --test test/cube-cobra-record-live.test.js",
     "dev": "vite",
     "build": "vite build",
-    "proof": "node scripts/generate-proof.js"
+    "proof": "node scripts/generate-proof.js",
+    "pdf:reference": "node scripts/generate-reference-pdf.js"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
+    "jspdf": "^4.2.1",
     "qrcode": "^1.5.4",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "@resvg/resvg-js": "^2.6.2",

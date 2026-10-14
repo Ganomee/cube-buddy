@@ -12,6 +12,8 @@ Run `npm run test:cubecobra` for the opt-in live smoke test against reference cu
 
 Run `npm run proof` to regenerate the numbered A4 proof in `proof/`. The proof still needs a 100% scale print on the Canon iP7200 series to confirm front/back alignment, QR reading, and writing/erasing on the intended surface.
 
+Run `npm run pdf:reference` to fetch the stored reference cube's mainboard and generate a Proxxied-style 600 DPI PDF in `print-output/`. Edit `print-settings.json` first to change the A4 grid, bleed, or guide settings. The command also writes a page manifest and a Cube Buddy backup containing the physical-copy IDs encoded in the printed QR codes. Restore that backup before recording observations from those printed cards. The ignored PDF is large because it contains 84 rasterized A4 pages.
+
 The backup preserves Cube Buddy data and can be restored into an empty project. It is not a Cube Cobra performance import file; that target capability is unverified.
 
 The owner screen exports `cube-buddy-performance` JSON linked to the Cube Cobra UUID and source card identifiers. It preserves Cube Buddy's metric meaning but is not a direct Cube Cobra Records upload.
