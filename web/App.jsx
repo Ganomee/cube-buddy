@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { exportCubePerformance, getCubePerformance } from '../src/cube-performance.js';
 import { fetchCubeCobraCsv } from '../src/cube-cobra-client.js';
 import { createCubeCobraConnectionStore } from '../src/cube-cobra-connection.js';
+import { createPrintProject, DEFAULT_PROXXIED_PRINT_SETTINGS } from '../src/print-project.js';
 
 function shortId(copyId) {
   return copyId.slice(-8);
@@ -29,6 +30,8 @@ export default function App({ store, fetcher = globalThis.fetch, connectionStora
   const [error, setError] = useState('');
   const [recordToken, setRecordToken] = useState('');
   const [connectedCubeId, setConnectedCubeId] = useState('');
+  const [printSettings, setPrintSettings] = useState({ ...DEFAULT_PROXXIED_PRINT_SETTINGS });
+  const [printPlanJson, setPrintPlanJson] = useState('');
   const connectionStore = React.useMemo(() => createCubeCobraConnectionStore(connectionStorage), [connectionStorage]);
 
   const cube = state.cubes.find((item) => item.cubeId === cubeId);
@@ -169,6 +172,28 @@ export default function App({ store, fetcher = globalThis.fetch, connectionStora
     }
   }
 
+  function updatePrintSetting(key, value) {
+    setPrintSettings((current) => ({ ...current, [key]: value }));
+  }
+
+  function preparePrintProject(event) {
+    event.preventDefault();
+    try {
+      const project = createPrintProject(entries, { printSettings });
+      setPrintPlanJson(JSON.stringify(project, null, 2));
+      try {
+        connectionStorage?.setItem?.(`cube-buddy:proxxied-settings:${cubeId}`, JSON.stringify(project.printSettings));
+      } catch {
+        // The plan remains usable when browser storage is unavailable.
+      }
+      setMessage(`Prepared ${project.pages.length} Proxxied PDF pages: tracked cards first, playable double-faced cards last.`);
+      setError('');
+    } catch (cause) {
+      setError(cause.message);
+      setMessage('');
+    }
+  }
+
   function saveRecordConnection(event) {
     event.preventDefault();
     try {
@@ -280,6 +305,25 @@ export default function App({ store, fetcher = globalThis.fetch, connectionStora
           <button type="button" className="secondary" onClick={restoreBackup}>Restore backup</button>
         </div>
       </section>
+
+      {state.cubes.length > 0 && (
+        <section className="panel" aria-labelledby="print-title">
+          <h2 id="print-title">Proxxied print project</h2>
+          <p>These values are passed to Proxxied’s PDF exporter. Tracking-backed sheets are followed by separate playable double-faced sheets.</p>
+          <form onSubmit={preparePrintProject} className="print-settings">
+            <label>Page width (inches)<input type="number" min="1" step="any" value={printSettings.pageWidthInches} onChange={(event) => updatePrintSetting('pageWidthInches', Number(event.target.value))} /></label>
+            <label>Page height (inches)<input type="number" min="1" step="any" value={printSettings.pageHeightInches} onChange={(event) => updatePrintSetting('pageHeightInches', Number(event.target.value))} /></label>
+            <label>Columns<input type="number" min="1" step="1" value={printSettings.cols} onChange={(event) => updatePrintSetting('cols', Number(event.target.value))} /></label>
+            <label>Rows<input type="number" min="1" step="1" value={printSettings.rows} onChange={(event) => updatePrintSetting('rows', Number(event.target.value))} /></label>
+            <label>Bleed width (mm)<input type="number" min="0" step="0.1" value={printSettings.bleedEdgeWidthMm} onChange={(event) => updatePrintSetting('bleedEdgeWidthMm', Number(event.target.value))} /></label>
+            <label>Guide width (px)<input type="number" min="0" step="0.1" value={printSettings.guideWidthPx} onChange={(event) => updatePrintSetting('guideWidthPx', Number(event.target.value))} /></label>
+            <label>Guide color<input type="color" value={printSettings.guideColor} onChange={(event) => updatePrintSetting('guideColor', event.target.value)} /></label>
+            <label className="checkbox-label"><input type="checkbox" checked={printSettings.bleedEdge} onChange={(event) => updatePrintSetting('bleedEdge', event.target.checked)} />Enable bleed and guides</label>
+            <button type="submit">Prepare Proxxied print project</button>
+          </form>
+          <label>Proxxied plan JSON<textarea value={printPlanJson} readOnly placeholder="Prepared page plan appears here" /></label>
+        </section>
+      )}
 
       {state.cubes.length > 0 && (
         <section className="panel" aria-labelledby="cube-title">

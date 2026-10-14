@@ -18,6 +18,10 @@ button { cursor: pointer; }
 .panel p { color: #5b7065; line-height: 1.5; margin: 0 0 16px; }
 .import-panel { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(300px, 1.5fr); gap: 32px; }
 .import-form, .review-form { display: grid; gap: 14px; }
+.print-settings { display: grid; grid-template-columns: repeat(4, minmax(130px, 1fr)); gap: 14px; margin: 20px 0; }
+.print-settings button { align-self: end; }
+.checkbox-label { display: flex; align-items: center; gap: 8px; align-self: end; min-height: 42px; }
+.checkbox-label input { min-width: auto; }
 label { display: grid; gap: 6px; font-size: .86rem; font-weight: 650; }
 input, textarea, select { border: 1px solid #c6d6c9; border-radius: 9px; background: #fbfcf9; padding: 10px 12px; color: #20352e; min-width: 0; }
 textarea { min-height: 110px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .85rem; }
@@ -51,7 +55,7 @@ button.secondary, .copy-actions button { background: #f7faf4; border-color: #cad
 .notice.error { background: #ffe8e0; color: #7b2f1b; }
 @media (max-width: 800px) {
   .masthead { padding: 30px; }
-  .import-panel, .review-panel, .card-row, .record-connection { grid-template-columns: 1fr; }
+  .import-panel, .review-panel, .card-row, .record-connection, .print-settings { grid-template-columns: 1fr; }
   .section-head { flex-direction: column; }
   .review-form { grid-template-columns: 1fr 1fr; }
 }

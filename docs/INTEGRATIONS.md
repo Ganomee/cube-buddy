@@ -10,6 +10,8 @@ Inspected 13 October 2026. These are source observations and integration constra
 
 **Proposed boundary to test:** Cube Buddy owns copy identity, front/back mapping, QR payload, tracking template, and print manifest. A Proxxied-compatible image export can supply fronts; a paired duplex exporter or source extension must preserve each copy's back. Test actual printed alignment before choosing the route.
 
+Cube Buddy now models Proxxied's current exporter settings directly: bleed toggle and width, guide color and width, page width and height in inches, page color, rows, and columns. The print plan alternates mirrored tracked front/back pages first, then appends separate playable double-faced front/back pages. Cube Cobra WebP URLs remain intact for Proxxied's browser Canvas image loader. The actual jsPDF export call and generated tracking-back image handoff remain the next integration slice.
+
 ## Cube Cobra
 
 - The [cube CSV export header](https://github.com/dekkerglen/CubeCobra/blob/master/packages/server/src/serverutils/cube.ts) includes `name`, `Set`, `Collector Number`, `board`, `image URL`, and `image Back URL`. These give Cube Buddy printing and custom-art inputs. The server's [API documentation](https://github.com/dekkerglen/CubeCobra/blob/master/packages/client/src/pages/ApiDocsPage.tsx) lists a CSV download route.

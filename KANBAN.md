@@ -12,7 +12,7 @@ Update this board with each story move. IDs and phases come from the project bri
 
 ## Blocked by decision or proof
 
-- [ ] CB-18, CB-31, CB-32, CB-34, CB-35 (P0/1) Print and Proxxied integration: reuse route, calibrated printer profile, reprint UX, and full print project. The double-faced placeholder has a tracking back plus a playable side pile.
+- [ ] CB-18, CB-31, CB-32, CB-34, CB-35 (P0/1) Print and Proxxied integration: the print plan now preserves WebP art and Proxxied settings, alternates mirrored tracked page pairs, and reserves separate playable DFC page pairs at the end. Remaining work is actual jsPDF export, generated-image handoff, printer calibration, and reprint UX.
 - [ ] CB-21 (P1/2) Image extraction: depends on approved back template and reviewed snapshot model.
 - [ ] CB-02–06, CB-08–12 (P1/3) Draft session and play: depends on Phase 1 release and D-07.
 - [ ] CB-07 (P1/3) Swiss pairings: D-08.
