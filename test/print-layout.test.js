@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createDefaultPrintLayout, parsePrintTemplate, serializePrintTemplate, updatePrintOverlay } from '../src/print-layout.js';
+import { addPrintTextOverlay, createDefaultPrintLayout, parsePrintTemplate, serializePrintTemplate, updatePrintOverlay } from '../src/print-layout.js';
 
 test('default editor layout exposes every field as an independent overlay', () => {
   const layout = createDefaultPrintLayout();
@@ -47,6 +47,17 @@ test('text fields store an independently selected font', () => {
   const layout = updatePrintOverlay(createDefaultPrintLayout(), 'name', { fontFamily: 'Papyrus, fantasy' });
   assert.equal(layout.overlays.name.fontFamily, 'Papyrus, fantasy');
   assert.notEqual(layout.overlays.name.fontFamily, layout.overlays['draft-average'].fontFamily);
+});
+
+test('custom text fields can be added and every field can be rotated', () => {
+  const added = addPrintTextOverlay(createDefaultPrintLayout());
+  assert.equal(added.id, 'custom-text-1');
+  assert.equal(added.layout.overlays[added.id].content, 'Custom text');
+  assert.equal(added.layout.overlays[added.id].fontFamily, 'Trebuchet MS, sans-serif');
+  const rotated = updatePrintOverlay(added.layout, added.id, { rotationDeg: -35, content: 'Cube night' });
+  assert.equal(rotated.overlays[added.id].rotationDeg, -35);
+  assert.equal(rotated.overlays[added.id].content, 'Cube night');
+  assert.equal(createDefaultPrintLayout().overlays['games-grid'].rotationDeg, 0);
 });
 
 test('individual fields can be moved, resized, and disabled', () => {

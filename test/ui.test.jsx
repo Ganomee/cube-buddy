@@ -89,6 +89,20 @@ test('Print Studio supports per-field fonts and Ctrl+Z layout undo', () => {
   expect(screen.getByTestId('overlay-name').style.left).toBe('9.3mm');
 });
 
+test('Print Studio adds custom text and rotates any selected field', () => {
+  render(<PrintApp store={store()} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Add text field' }));
+  fireEvent.change(screen.getByLabelText('Text content'), { target: { value: 'Cube night' } });
+  fireEvent.change(screen.getByLabelText('Rotation (degrees)'), { target: { value: '-35' } });
+  const overlay = screen.getByTestId('overlay-custom-text-1');
+  expect(overlay.textContent).toContain('Cube night');
+  expect(overlay.style.transform).toBe('rotate(-35deg)');
+
+  fireEvent.click(screen.getByRole('button', { name: 'Edit Games grid' }));
+  fireEvent.change(screen.getByLabelText('Rotation (degrees)'), { target: { value: '90' } });
+  expect(screen.getByTestId('overlay-games-grid').style.transform).toBe('rotate(90deg)');
+});
+
 test('QBuddy Print prepares reverse-stack manual duplex output', async () => {
   const project = store();
   project.importCubeCsv('name,Set,Collector Number,image URL\nSol Ring,C21,263,https://img.example/sol.webp', { cubeId: 'print-cube' });
