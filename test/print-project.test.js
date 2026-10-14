@@ -71,3 +71,22 @@ test('Proxxied card adapter preserves Cube Cobra WebP artwork', () => {
   });
   assert.throws(() => toProxxiedCard(entry(7), { face: 'back' }), /back artwork/i);
 });
+
+test('manual stack mode prints all fronts then mirrored backs in reverse sheet order', () => {
+  const project = createPrintProject(
+    Array.from({ length: 20 }, (_, index) => entry(index + 1)),
+    { duplexMode: 'manual-stack' },
+  );
+
+  assert.deepEqual(project.pages.map((page) => page.kind), [
+    'tracked-front', 'tracked-front', 'tracked-front',
+    'tracking-back', 'tracking-back', 'tracking-back',
+  ]);
+  assert.deepEqual(project.pages.map((page) => page.sheet), [1, 2, 3, 3, 2, 1]);
+  assert.equal(project.pages[3].cards[2].copyId, 'copy-19');
+  assert.equal(project.duplexMode, 'manual-stack');
+});
+
+test('rejects an unknown duplex page order', () => {
+  assert.throws(() => createPrintProject([entry(1)], { duplexMode: 'sideways' }), /duplex/i);
+});
