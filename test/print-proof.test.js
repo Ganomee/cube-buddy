@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   renderCardbackTemplate,
+  renderCardbackPositionTemplate,
+  parseCardbackPositionTemplate,
   renderTrackingOverlay,
   renderTrackingBack,
   renderA4Proof,
@@ -23,10 +25,29 @@ test('cardback template renders only the supplied base artwork', async () => {
   assert.doesNotMatch(svg, /data-pick-box=/);
 });
 
+test('position template is an editable image with a distinct solid color per placeholder', async () => {
+  const svg = await renderCardbackPositionTemplate();
+  const placeholders = [...svg.matchAll(/data-placeholder="([^"]+)"[^>]+fill="(#[0-9A-F]{6})"/g)];
+
+  assert.deepEqual(placeholders.map((match) => match[1]), [
+    'picks-avg', 'picks-count', 'games', 'qr', 'wins', 'copy-number', 'name',
+  ]);
+  assert.equal(new Set(placeholders.map((match) => match[2])).size, placeholders.length);
+  assert.match(svg, /viewBox="0 0 1024 1536"/);
+});
+
+test('replacement geometry is measured from the editable position image', () => {
+  const template = '<svg viewBox="0 0 1024 1536"><rect data-placeholder="qr" x="400" y="600" width="200" height="300" fill="#123456"/></svg>';
+  const layout = parseCardbackPositionTemplate(template);
+
+  assert.deepEqual(layout.qr, { x: 24.805, y: 34.727, width: 12.402, height: 17.363 });
+});
+
 test('tracking overlay positions replacement fields without the template', async () => {
   const svg = await renderTrackingOverlay(copies[0]);
 
   assert.doesNotMatch(svg, /data-cardback-template=/);
+  assert.match(svg, /data-layout-source="cardback overlay\.svg"/);
   assert.match(svg, /data-placeholder="qr" x="23\.85" y="36\.1" width="15\.8" height="15\.8"/);
   assert.match(svg, /data-placeholder="name" x="9\.3" y="76\.1" width="44\.6" height="6\.4"/);
   assert.match(svg, />Proof card 1</);
