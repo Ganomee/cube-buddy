@@ -33,6 +33,7 @@ Update this board with each story move. IDs and phases come from the project bri
 - [ ] CB-43 (P0/1) QBuddy Print loads a Cube Cobra cube into a visual card-back editor. Every overlay can be shown, moved, and resized independently; grids expose row, column, and square-size controls; preview values can use Cube Buddy state. Awaiting owner browser and print-workflow review.
 - [ ] CB-44 (P0/1) Reviewed Print Studio adds color-coded fields, live physical-copy preview, reusable JSON template save/load, A4/Letter/custom paper sizes, and editable Proxxied printer profiles with independent front/back registration offsets. Awaiting the next owner review and physical duplex measurements.
 - [ ] CB-45 (P0/1) Value fields print bare numbers by default, with optional editable labels per field. Color controls are visible and editable directly in the field list. Awaiting owner visual review.
+- [ ] CB-46 (P0/1) Print Studio keeps layout undo history, supports rectangular grid cells with total-size or cell-size locking, and stores an independent font choice for every text field. Awaiting owner interaction and typography review.
 
 ## Done
 

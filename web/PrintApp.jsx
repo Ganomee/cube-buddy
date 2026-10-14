@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { fetchCubeCobraCsv } from '../src/cube-cobra-client.js';
 import { createDefaultPrintLayout, parsePrintTemplate, serializePrintTemplate, updatePrintOverlay } from '../src/print-layout.js';
 import { createPrintProject, DEFAULT_PROXXIED_PRINT_SETTINGS } from '../src/print-project.js';
@@ -65,18 +65,40 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
   const [error, setError] = useState('');
   const [planJson, setPlanJson] = useState('');
   const [gesture, setGesture] = useState(null);
+  const historyRef = useRef([]);
   const canvasRef = useRef(null);
   const entries = activeEntries(projectState, cubeId);
   const selected = layout.overlays[selectedId];
 
+  function commitLayout(change) {
+    setLayout((current) => {
+      const next = typeof change === 'function' ? change(current) : change;
+      historyRef.current = [...historyRef.current.slice(-99), current];
+      return next;
+    });
+  }
+
   function updateOverlay(id, changes) {
-    setLayout((current) => updatePrintOverlay(current, id, changes));
+    commitLayout((current) => updatePrintOverlay(current, id, changes));
   }
 
   function updateGrid(key, value) {
     const number = Number(value);
-    if (number > 0) updateOverlay(selectedId, { grid: { [key]: key === 'cellSizeMm' ? number : Math.round(number) } });
+    if (number > 0) updateOverlay(selectedId, { grid: { [key]: ['rows', 'columns'].includes(key) ? Math.round(number) : number } });
   }
+
+  useEffect(() => {
+    const undo = (event) => {
+      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== 'z') return;
+      event.preventDefault();
+      const previous = historyRef.current.at(-1);
+      if (!previous) return;
+      historyRef.current = historyRef.current.slice(0, -1);
+      setLayout(previous);
+    };
+    window.addEventListener('keydown', undo);
+    return () => window.removeEventListener('keydown', undo);
+  }, []);
 
   async function loadCube(event) {
     event.preventDefault();
@@ -124,7 +146,7 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
     const file = event.target.files?.[0];
     if (!file) return;
     try {
-      setLayout(parsePrintTemplate(await file.text()));
+      commitLayout(parsePrintTemplate(await file.text()));
       setMessage(`Loaded print template ${file.name}.`);
       setError('');
     } catch (cause) { setError(cause.message); }
@@ -229,7 +251,7 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
 
       <section className="panel canvas-panel">
         <div className="card-canvas-frame"><div className="card-canvas" ref={canvasRef} style={{ aspectRatio: `${layout.widthMm}/${layout.heightMm}`, backgroundImage: `url("${background}")` }} onPointerMove={moveGesture} onPointerUp={() => setGesture(null)} onPointerCancel={() => setGesture(null)}>
-          {Object.entries(layout.overlays).filter(([, overlay]) => overlay.enabled).map(([id, overlay]) => <div key={id} data-testid={`overlay-${id}`} className={`canvas-overlay ${selectedId === id ? 'active' : ''} ${overlay.grid ? 'grid-overlay' : ''}`} style={{ '--overlay-color': overlay.color, left: `${overlay.xMm}mm`, top: `${overlay.yMm}mm`, width: `${overlay.widthMm}mm`, height: `${overlay.heightMm}mm` }} onPointerDown={(event) => beginGesture(event, id, 'move')}>
+          {Object.entries(layout.overlays).filter(([, overlay]) => overlay.enabled).map(([id, overlay]) => <div key={id} data-testid={`overlay-${id}`} className={`canvas-overlay ${selectedId === id ? 'active' : ''} ${overlay.grid ? 'grid-overlay' : ''}`} style={{ '--overlay-color': overlay.color, left: `${overlay.xMm}mm`, top: `${overlay.yMm}mm`, width: `${overlay.widthMm}mm`, height: `${overlay.heightMm}mm`, fontFamily: overlay.fontFamily }} onPointerDown={(event) => beginGesture(event, id, 'move')}>
             <OverlayContent id={id} overlay={overlay} samples={samples} />
             {selectedId === id && <button type="button" aria-label={`Resize ${overlay.label}`} className="resize-handle" onPointerDown={(event) => beginGesture(event, id, 'resize')} />}
           </div>)}
@@ -240,14 +262,17 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
       <aside className="panel inspector">
         <h2>{selected.label}</h2>
         <label>Preview card<select value={previewCopyId} onChange={(event) => selectPreviewCard(event.target.value)}><option value="">Example values</option>{entries.map((entry) => <option value={entry.copyId} key={entry.copyId}>{entry.name} · {entry.copyId.slice(-8)}</option>)}</select></label>
+        {!selected.grid && selectedId !== 'qr' && <label>Font<select value={selected.fontFamily} onChange={(event) => updateOverlay(selectedId, { fontFamily: event.target.value })}><option value="Trebuchet MS, sans-serif">Clean sans</option><option value="Georgia, serif">Classic serif</option><option value="Palatino Linotype, serif">Book serif</option><option value="Papyrus, fantasy">Fantasy</option><option value="Courier New, monospace">Monospace</option></select></label>}
         {selected.text && <div className="text-label-controls"><label className="checkbox-label"><input type="checkbox" checked={selected.text.showLabel} onChange={(event) => updateOverlay(selectedId, { text: { showLabel: event.target.checked } })} />Show text label</label><label>Text label<input value={selected.text.label} onChange={(event) => updateOverlay(selectedId, { text: { label: event.target.value } })} /></label></div>}
         <div className="geometry-fields">
           {['xMm', 'yMm', 'widthMm', 'heightMm'].map((key) => <label key={key}>{({ xMm: 'Left (mm)', yMm: 'Top (mm)', widthMm: 'Width (mm)', heightMm: 'Height (mm)' })[key]}<input type="number" min="0" step="0.1" value={selected[key]} onChange={(event) => updateOverlay(selectedId, { [key]: Number(event.target.value) })} /></label>)}
         </div>
         {selected.grid && <div className="geometry-fields grid-fields">
+          <label className="checkbox-label"><input type="checkbox" checked={selected.grid.lock === 'unit'} onChange={(event) => updateOverlay(selectedId, { grid: { lock: event.target.checked ? 'unit' : 'total' } })} />Lock cell size</label>
           <label>Grid rows<input type="number" min="1" value={selected.grid.rows} onChange={(event) => updateGrid('rows', event.target.value)} /></label>
           <label>Grid columns<input type="number" min="1" value={selected.grid.columns} onChange={(event) => updateGrid('columns', event.target.value)} /></label>
-          <label>Square side (mm)<input type="number" min="0.5" step="0.1" value={selected.grid.cellSizeMm} onChange={(event) => updateGrid('cellSizeMm', event.target.value)} /></label>
+          <label>Cell width (mm)<input type="number" min="0.5" step="0.1" disabled={selected.grid.lock === 'total'} value={Number(selected.grid.cellWidthMm.toFixed(3))} onChange={(event) => updateGrid('cellWidthMm', event.target.value)} /></label>
+          <label>Cell height (mm)<input type="number" min="0.5" step="0.1" disabled={selected.grid.lock === 'total'} value={Number(selected.grid.cellHeightMm.toFixed(3))} onChange={(event) => updateGrid('cellHeightMm', event.target.value)} /></label>
         </div>}
         <h3>Preview values</h3>
         <label>Preview draft average<input value={samples.draftAverage} onChange={(event) => setSamples({ ...samples, draftAverage: event.target.value })} /></label>
