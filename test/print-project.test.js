@@ -30,6 +30,10 @@ test('print settings use Proxxied exporter fields and accept a saved printer pro
     pdfPageColor: '#FFFFFF',
     cols: 3,
     rows: 3,
+    frontOffsetXmm: 0,
+    frontOffsetYmm: 0,
+    backOffsetXmm: 0,
+    backOffsetYmm: 0,
   });
 
   const project = createPrintProject([entry(1)], {
@@ -38,6 +42,13 @@ test('print settings use Proxxied exporter fields and accept a saved printer pro
   assert.equal(project.printSettings.bleedEdge, true);
   assert.equal(project.printSettings.bleedEdgeWidthMm, 1);
   assert.equal(project.printSettings.cols, 3);
+});
+
+test('printer profile preserves separate front and duplex-back offsets', () => {
+  const project = createPrintProject([entry(1)], { printSettings: { frontOffsetXmm: 1.2, backOffsetXmm: -0.8, backOffsetYmm: 2 } });
+  assert.equal(project.printSettings.frontOffsetXmm, 1.2);
+  assert.equal(project.printSettings.backOffsetXmm, -0.8);
+  assert.equal(project.printSettings.backOffsetYmm, 2);
 });
 
 test('tracked card pairs come first and playable double-faced pairs occupy ending pages', () => {

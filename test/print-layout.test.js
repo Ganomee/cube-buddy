@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createDefaultPrintLayout, updatePrintOverlay } from '../src/print-layout.js';
+import { createDefaultPrintLayout, parsePrintTemplate, serializePrintTemplate, updatePrintOverlay } from '../src/print-layout.js';
 
 test('default editor layout exposes every field as an independent overlay', () => {
   const layout = createDefaultPrintLayout();
@@ -34,4 +34,12 @@ test('individual fields can be moved, resized, and disabled', () => {
     ...layout.overlays['draft-average'], xMm: 4, yMm: 5, widthMm: 12, heightMm: 4, enabled: false,
   });
   assert.notEqual(moved.overlays['draft-average'], layout.overlays['draft-average']);
+});
+
+test('overlay colors and geometry round-trip through a reusable print template', () => {
+  const layout = updatePrintOverlay(createDefaultPrintLayout(), 'games-grid', { color: '#ff0066', xMm: 8 });
+  const restored = parsePrintTemplate(serializePrintTemplate(layout));
+  assert.equal(restored.overlays['games-grid'].color, '#ff0066');
+  assert.equal(restored.overlays['games-grid'].xMm, 8);
+  assert.throws(() => parsePrintTemplate('{"widthMm": 63.5}'), /overlays/i);
 });

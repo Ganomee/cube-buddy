@@ -86,6 +86,18 @@ test('QBuddy Print prepares reverse-stack manual duplex output', async () => {
   expect(plan.pages.map((page) => page.kind)).toEqual(['tracked-front', 'tracking-back']);
 });
 
+test('QBuddy Print color-codes fields and applies paper presets live', () => {
+  render(<PrintApp store={store()} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Edit Copy number' }));
+  fireEvent.change(screen.getByLabelText('Field color'), { target: { value: '#ff0066' } });
+  expect(screen.getByTestId('overlay-copy-number').style.getPropertyValue('--overlay-color')).toBe('#ff0066');
+  expect(screen.getByTestId('legend-copy-number').style.backgroundColor).toBe('rgb(255, 0, 102)');
+
+  fireEvent.change(screen.getByLabelText('Paper size'), { target: { value: 'letter' } });
+  expect(screen.getByLabelText('Page width (mm)').value).toBe('215.9');
+  expect(screen.getByLabelText('Page height (mm)').value).toBe('279.4');
+});
+
 test('owner can load and import a public Cube Cobra URL', async () => {
   const fetcher = async () => ({
     ok: true,
