@@ -5,6 +5,6 @@
   <rect data-placeholder="games" x="236.2457" y="272.9899" width="599.8866" height="321.3678" fill="#00C853"/>
   <rect data-placeholder="qr" x="384.6047" y="623.7300" width="254.7906" height="272.9899" fill="#0057FF"/>
   <rect data-placeholder="wins" x="236.2457" y="939.0506" width="599.8866" height="321.3678" fill="#FFD600"/>
-  <rect data-placeholder="copy-number" x="435.4016" y="1272.5129" width="153.1969" height="27.6445" fill="#AA00FF"/>
+  <rect data-placeholder="copy-number" x="385.4016" y="1272.5129" width="253.1969" height="27.6445" fill="#AA00FF"/>
   <rect data-placeholder="name" x="149.9717" y="1314.8436" width="719.2189" height="110.5782" fill="#00BCD4"/>
 </svg>
