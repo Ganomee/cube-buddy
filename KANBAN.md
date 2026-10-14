@@ -32,6 +32,7 @@ Update this board with each story move. IDs and phases come from the project bri
 - [ ] CB-41 (P0/1) Artwork-backed tracking card uses the supplied ornamental cardback, exact generated 50 Games / 50 Wins / 20 pick fields, and extracted QR/name bounds. Generated SVG/PNG proof passes layout tests; physical scan, erasability, and duplex verification remain the human gate.
 - [ ] CB-43 (P0/1) QBuddy Print loads a Cube Cobra cube into a visual card-back editor. Every overlay can be shown, moved, and resized independently; grids expose row, column, and square-size controls; preview values can use Cube Buddy state. Awaiting owner browser and print-workflow review.
 - [ ] CB-44 (P0/1) Reviewed Print Studio adds color-coded fields, live physical-copy preview, reusable JSON template save/load, A4/Letter/custom paper sizes, and editable Proxxied printer profiles with independent front/back registration offsets. Awaiting the next owner review and physical duplex measurements.
+- [ ] CB-45 (P0/1) Value fields print bare numbers by default, with optional editable labels per field. Color controls are visible and editable directly in the field list. Awaiting owner visual review.
 
 ## Done
 

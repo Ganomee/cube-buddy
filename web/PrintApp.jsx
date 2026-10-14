@@ -27,11 +27,12 @@ function Grid({ overlay }) {
 function OverlayContent({ id, overlay, samples }) {
   if (overlay.grid) return <Grid overlay={overlay} />;
   if (id === 'qr') return <span className="fake-qr">▦</span>;
+  const prefix = overlay.text?.showLabel && overlay.text.label.trim() ? `${overlay.text.label.trim()} ` : '';
   const values = {
-    'draft-average': `AVG ${samples.draftAverage}`,
-    'draft-count': `DRAFTS ${samples.draftCount}`,
-    'win-percentage': `WIN ${samples.winPercentage}%`,
-    'game-count': `GAMES ${samples.gameCount}`,
+    'draft-average': `${prefix}${samples.draftAverage}`,
+    'draft-count': `${prefix}${samples.draftCount}`,
+    'win-percentage': `${prefix}${samples.winPercentage}%`,
+    'game-count': `${prefix}${samples.gameCount}`,
     'copy-number': samples.copyNumber,
     name: samples.name,
   };
@@ -220,7 +221,7 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
         <h2>Fields</h2>
         <p>Each field can be shown, moved, and sized independently.</p>
         {Object.entries(layout.overlays).map(([id, overlay]) => <div className={selectedId === id ? 'overlay-row selected' : 'overlay-row'} key={id}>
-          <span className="overlay-swatch" data-testid={`legend-${id}`} style={{ backgroundColor: overlay.color }} />
+          <input className="overlay-swatch" data-testid={`legend-${id}`} aria-label={`${overlay.label} color`} type="color" value={overlay.color} style={{ backgroundColor: overlay.color }} onClick={() => setSelectedId(id)} onChange={(event) => updateOverlay(id, { color: event.target.value })} />
           <label className="checkbox-label"><input type="checkbox" checked={overlay.enabled} onChange={(event) => updateOverlay(id, { enabled: event.target.checked })} />Show {overlay.label}</label>
           <button type="button" className="secondary" onClick={() => setSelectedId(id)}>Edit {overlay.label}</button>
         </div>)}
@@ -239,7 +240,7 @@ export default function PrintApp({ store, fetcher = globalThis.fetch }) {
       <aside className="panel inspector">
         <h2>{selected.label}</h2>
         <label>Preview card<select value={previewCopyId} onChange={(event) => selectPreviewCard(event.target.value)}><option value="">Example values</option>{entries.map((entry) => <option value={entry.copyId} key={entry.copyId}>{entry.name} · {entry.copyId.slice(-8)}</option>)}</select></label>
-        <label>Field color<input type="color" value={selected.color} onChange={(event) => updateOverlay(selectedId, { color: event.target.value })} /></label>
+        {selected.text && <div className="text-label-controls"><label className="checkbox-label"><input type="checkbox" checked={selected.text.showLabel} onChange={(event) => updateOverlay(selectedId, { text: { showLabel: event.target.checked } })} />Show text label</label><label>Text label<input value={selected.text.label} onChange={(event) => updateOverlay(selectedId, { text: { label: event.target.value } })} /></label></div>}
         <div className="geometry-fields">
           {['xMm', 'yMm', 'widthMm', 'heightMm'].map((key) => <label key={key}>{({ xMm: 'Left (mm)', yMm: 'Top (mm)', widthMm: 'Width (mm)', heightMm: 'Height (mm)' })[key]}<input type="number" min="0" step="0.1" value={selected[key]} onChange={(event) => updateOverlay(selectedId, { [key]: Number(event.target.value) })} /></label>)}
         </div>

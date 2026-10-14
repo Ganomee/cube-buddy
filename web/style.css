@@ -61,7 +61,7 @@ button.secondary, .copy-actions button { background: #f7faf4; border-color: #cad
 .overlay-row { position: relative; padding: 9px 0 9px 22px; border-bottom: 1px solid #e1e9df; }
 .overlay-row.selected { background: #f1f7df; margin-inline: -8px; padding-inline: 8px; }
 .overlay-row.selected { padding-left: 30px; }
-.overlay-swatch { position: absolute; left: 1px; top: 14px; width: 14px; height: 14px; border-radius: 4px; border: 1px solid #60736a; }
+.overlay-swatch { position: absolute; left: 1px; top: 14px; width: 16px; height: 18px; min-width: 0; padding: 0; border-radius: 4px; border: 1px solid #60736a; cursor: pointer; }
 .overlay-row.selected .overlay-swatch { left: 9px; }
 .overlay-row button { width: 100%; padding: 7px; font-size: .76rem; }
 .canvas-panel { display: grid; justify-items: center; overflow: auto; }
@@ -78,6 +78,7 @@ button.secondary, .copy-actions button { background: #f7faf4; border-color: #cad
 .geometry-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
 .grid-fields { padding-top: 18px; border-top: 1px solid #dce5da; }
 .inspector > label { margin-bottom: 10px; }
+.text-label-controls { display: grid; gap: 10px; padding: 12px 0; margin-bottom: 10px; border-bottom: 1px solid #dce5da; }
 .inspector h3 { margin: 20px 0 12px; }
 .print-form textarea { min-height: 190px; }
 .profile-json { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 14px; margin-bottom: 18px; }
