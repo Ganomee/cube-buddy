@@ -26,6 +26,25 @@ test('owner can import a Cube Cobra CSV and find its physical copy', () => {
   expect(screen.getByText('No observations yet')).toBeTruthy();
 });
 
+test('owner can supply Proxxied print settings and prepare isolated DFC pages', () => {
+  const project = store();
+  project.importCubeCsv([
+    'name,Set,Collector Number,image URL,image Back URL,Layout',
+    'Sol Ring,C21,263,https://art.example/sol-ring.webp,,normal',
+    'Delver of Secrets,INR,60,https://art.example/delver.webp,https://art.example/aberration.webp,transform',
+  ].join('\n'), { cubeId: 'print-cube' });
+  render(<App store={project} />);
+
+  fireEvent.change(screen.getByLabelText('Bleed width (mm)'), { target: { value: '1' } });
+  fireEvent.change(screen.getByLabelText('Guide color'), { target: { value: '#ff00ff' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Prepare Proxxied print project' }));
+
+  const plan = JSON.parse(screen.getByLabelText('Proxxied plan JSON').value);
+  expect(plan.engine.name).toBe('Proxxied');
+  expect(plan.printSettings.bleedEdgeWidthMm).toBe(1);
+  expect(plan.pages.map((page) => page.section)).toEqual(['tracked', 'tracked', 'playable-dfc', 'playable-dfc']);
+});
+
 test('owner can load and import a public Cube Cobra URL', async () => {
   const fetcher = async () => ({
     ok: true,
