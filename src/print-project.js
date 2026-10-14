@@ -37,33 +37,44 @@ function mirroredSlots(cards, cols, perPage) {
   return slots;
 }
 
-function pagePairs(entries, { section, frontKind, backKind, cols, rows }) {
+function sheetPairs(entries, { section, frontKind, backKind, cols, rows }) {
   const perPage = cols * rows;
-  const pages = [];
+  const pairs = [];
   for (let start = 0; start < entries.length; start += perPage) {
     const cards = entries.slice(start, start + perPage);
-    pages.push({ section, kind: frontKind, cards: [...cards, ...Array(perPage - cards.length).fill(null)] });
-    pages.push({ section, kind: backKind, cards: mirroredSlots(cards, cols, perPage) });
+    const sheet = pairs.length + 1;
+    pairs.push({
+      front: { section, sheet, kind: frontKind, cards: [...cards, ...Array(perPage - cards.length).fill(null)] },
+      back: { section, sheet, kind: backKind, cards: mirroredSlots(cards, cols, perPage) },
+    });
   }
-  return pages;
+  return pairs;
 }
 
-export function createPrintProject(entries, { printSettings: overrides } = {}) {
+function orderPairs(pairs, duplexMode) {
+  if (duplexMode === 'interleaved') return pairs.flatMap(({ front, back }) => [front, back]);
+  return [...pairs.map(({ front }) => front), ...pairs.toReversed().map(({ back }) => back)];
+}
+
+export function createPrintProject(entries, { printSettings: overrides, duplexMode = 'interleaved' } = {}) {
   if (!Array.isArray(entries)) throw new TypeError('Cube entries are required');
+  if (!['interleaved', 'manual-stack'].includes(duplexMode)) throw new TypeError('Unknown duplex page order');
   const settings = printSettings(overrides);
   const doubleFaced = entries.filter(isDoubleFaced);
+  const trackedEntries = [...entries.filter((entry) => !isDoubleFaced(entry)), ...doubleFaced];
   const pages = [
-    ...pagePairs(entries, {
+    ...orderPairs(sheetPairs(trackedEntries, {
       section: 'tracked', frontKind: 'tracked-front', backKind: 'tracking-back',
       cols: settings.cols, rows: settings.rows,
-    }),
-    ...pagePairs(doubleFaced, {
+    }), duplexMode),
+    ...orderPairs(sheetPairs(doubleFaced, {
       section: 'playable-dfc', frontKind: 'dfc-front', backKind: 'dfc-back',
       cols: settings.cols, rows: settings.rows,
-    }),
+    }), duplexMode),
   ];
   return {
     engine: Object.freeze({ name: 'Proxxied', exporter: 'exportProxyPagesToPdf' }),
+    duplexMode,
     printSettings: settings,
     pages,
     summary: Object.freeze({ trackedCards: entries.length, playableDoubleFacedCards: doubleFaced.length }),
