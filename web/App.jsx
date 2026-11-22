@@ -3,6 +3,7 @@ import { exportCubePerformance, getCubePerformance } from '../src/cube-performan
 import { fetchCubeCobraCsv } from '../src/cube-cobra-client.js';
 import { createCubeCobraConnectionStore } from '../src/cube-cobra-connection.js';
 import { createPrintProject, DEFAULT_PROXXIED_PRINT_SETTINGS } from '../src/print-project.js';
+import LiveTournament from './LiveTournament.jsx';
 
 function shortId(copyId) {
   return copyId.slice(-8);
@@ -44,6 +45,16 @@ export default function App({ store, fetcher = globalThis.fetch, connectionStora
 
   function refresh() {
     setState(store.getState());
+  }
+
+  function selectCube(id) {
+    setCubeId(id);
+    setSelectedCopyId(null);
+  }
+
+  function setCubeCobraRecord(url) {
+    store.setCubeCobraRecord(cubeId, url);
+    refresh();
   }
 
   function selectCopy(copyId) {
@@ -256,7 +267,10 @@ export default function App({ store, fetcher = globalThis.fetch, connectionStora
         <span className="eyebrow">Physical cube, practical feedback</span>
         <h1>Cube Buddy</h1>
         <p>Import your Cube Cobra list, review marked card backs, and see the recorded outcomes on your cube.</p>
-        <a className="header-link" href="/print">Open QBuddy Print</a>
+        <nav className="tournament-actions" aria-label="Cube Buddy">
+          <a className="header-link" href="#live-tournament">Live tournament</a>
+          <a className="header-link" href="/print">Open QBuddy Print</a>
+        </nav>
       </header>
 
       <section className="panel import-panel" aria-labelledby="import-title">
@@ -297,9 +311,11 @@ export default function App({ store, fetcher = globalThis.fetch, connectionStora
         )}
       </section>
 
+      <LiveTournament cubes={state.cubes} cube={cube} onSelectCube={selectCube} onSetRecord={setCubeCobraRecord} />
+
       <section className="panel" aria-labelledby="backup-title">
         <h2 id="backup-title">Local backup</h2>
-        <p>Export all cubes, copy IDs, source mappings, and reviewed cycles. Restore only into an empty project.</p>
+        <p>Export all cubes, attached Record IDs, copy IDs, source mappings, and reviewed cycles. Restore only into an empty project.</p>
         <label>Backup JSON<textarea value={backupJson} onChange={(event) => setBackupJson(event.target.value)} placeholder="Export or paste a Cube Buddy backup here" /></label>
         <div className="copy-actions">
           <button type="button" onClick={exportBackup}>Export backup</button>
@@ -328,15 +344,8 @@ export default function App({ store, fetcher = globalThis.fetch, connectionStora
 
       {state.cubes.length > 0 && (
         <section className="panel" aria-labelledby="cube-title">
-          <div className="section-head">
-            <div>
-              <h2 id="cube-title">Cube performance</h2>
-              <p>Player-selected relevant-game outcomes. Unmarked cards have no recorded rate.</p>
-            </div>
-            <label>Selected cube<select value={cubeId} onChange={(event) => { setCubeId(event.target.value); setSelectedCopyId(null); }}>
-              {state.cubes.map((item) => <option key={item.cubeId} value={item.cubeId}>{item.cubeId}</option>)}
-            </select></label>
-          </div>
+          <h2 id="cube-title">Cube performance</h2>
+          <p>Player-selected relevant-game outcomes. Unmarked cards have no recorded rate.</p>
           <form onSubmit={openCopyFromQr} className="import-form">
             <label>Scan or paste copy QR<input value={qrPayload} onChange={(event) => setQrPayload(event.target.value)} placeholder="cube-buddy:copy:..." required /></label>
             <button type="submit">Open copy</button>

@@ -32,6 +32,12 @@ button.secondary, .copy-actions button { background: #f7faf4; border-color: #cad
 .file-label input { background: transparent; padding: 6px 0; border: 0; }
 .section-head { display: flex; justify-content: space-between; align-items: start; gap: 20px; }
 .section-head label { min-width: 180px; }
+.tournament-content { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 32px; margin-top: 16px; }
+.tournament-content h3, .tournament-content .import-form p { margin: 0; }
+.tournament-content > .import-form { align-content: start; }
+.tournament-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; }
+.tournament-content a { color: #245f43; font-weight: 700; }
+.tournament-content > div > .tournament-actions { margin-bottom: 16px; }
 .card-list { display: grid; gap: 10px; }
 .card-row { display: grid; grid-template-columns: minmax(170px, 1fr) minmax(170px, 1fr) minmax(160px, auto); gap: 18px; align-items: center; border: 1px solid #e1e9df; border-radius: 12px; padding: 16px; }
 .card-row h3 { margin: 0 0 4px; font-size: 1.05rem; }
@@ -86,7 +92,7 @@ button.secondary, .copy-actions button { background: #f7faf4; border-color: #cad
 .profile-json textarea { min-height: 150px; }
 @media (max-width: 800px) {
   .masthead { padding: 30px; }
-  .import-panel, .review-panel, .card-row, .record-connection, .print-settings { grid-template-columns: 1fr; }
+  .import-panel, .review-panel, .card-row, .record-connection, .print-settings, .tournament-content { grid-template-columns: 1fr; }
   .section-head { flex-direction: column; }
   .review-form { grid-template-columns: 1fr 1fr; }
   .source-bar, .source-bar form, .print-workspace, .profile-json { grid-template-columns: 1fr; }
