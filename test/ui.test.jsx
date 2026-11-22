@@ -1,5 +1,5 @@
 import React from 'react';
-import { afterEach, expect, test } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import App from '../web/App.jsx';
 import PrintApp from '../web/PrintApp.jsx';
@@ -64,6 +64,107 @@ test('the owner dashboard attaches a confirmed live Record to the selected cube 
   expect(liveTournament().queryByRole('link', { name: 'Open live Record' })).toBeNull();
   fireEvent.change(screen.getByLabelText('Selected cube'), { target: { value: eventCubeId } });
   expect(liveTournament().getByRole('link', { name: 'Open spectator link' }).href).toBe(recordUrl);
+});
+
+test('the organizer must confirm the current URL and cannot replace a Record with an unsafe link', () => {
+  const project = store();
+  project.importCubeCsv(csv, { cubeId: eventCubeId });
+  render(<App store={project} />);
+  const tournament = liveTournament();
+  submitRecordLink(tournament, recordUrl);
+
+  const replacementUrl = 'https://cubecobra.com/cube/record/8d27d790-a245-499d-bcb7-a745bf824c75';
+  const field = tournament.getByLabelText('Cube Cobra Record URL');
+  const confirm = tournament.getByRole('checkbox', { name: 'I confirm this Record belongs to the selected cube.' });
+  const replace = tournament.getByRole('button', { name: 'Replace Record' });
+  fireEvent.change(field, { target: { value: recordUrl } });
+  fireEvent.click(confirm);
+  fireEvent.change(field, { target: { value: replacementUrl } });
+  fireEvent.click(replace);
+  expect(confirm.checked).toBe(false);
+  expect(tournament.getByRole('link', { name: 'Open live Record' }).href).toBe(recordUrl);
+
+  for (const unsafeUrl of [
+    `https://cubecobra.com.example.com/cube/record/${recordId}`,
+    `https://example.com@cubecobra.com/cube/record/${recordId}`,
+    `http://cubecobra.com/cube/record/${recordId}`,
+    `https://cubecobra.com:8443/cube/record/${recordId}`,
+    `https://cubecobra.com/cube/records/contribute/${recordId}?token=synthetic-token`,
+    `https://cubecobra.com/cube/record/extra/../${recordId}`,
+    `https://cubecobra.com/cube/record/${recordId}/extra`,
+    'https://cubecobra.com/cube/record/not-a-record-id',
+    'javascript:alert(1)',
+  ]) {
+    submitRecordLink(tournament, unsafeUrl, 'Replace Record');
+    expect(tournament.getByRole('alert').textContent).toMatch(/paste the Cube Cobra Record page URL/i);
+    expect(tournament.getByRole('link', { name: 'Open live Record' }).href).toBe(recordUrl);
+  }
+});
+
+test('the organizer can replace and remove a Record, including after restoring a backup', () => {
+  const project = store();
+  project.importCubeCsv(csv, { cubeId: eventCubeId });
+  const { unmount } = render(<App store={project} />);
+  const tournament = liveTournament();
+  submitRecordLink(tournament, `${recordUrl}?view=matches#round-1`);
+  const replacementId = '8d27d790-a245-499d-bcb7-a745bf824c75';
+  const replacementUrl = `https://cubecobra.com/cube/record/${replacementId}`;
+  submitRecordLink(tournament, `${replacementUrl}?view=matches#round-2`, 'Replace Record');
+  expect(tournament.getByRole('link', { name: 'Open spectator link' }).href).toBe(replacementUrl);
+  fireEvent.click(screen.getByRole('button', { name: 'Export backup' }));
+  const backup = screen.getByLabelText('Backup JSON').value;
+  expect(JSON.parse(backup).project.cubes[0].cubeCobraRecordId).toBe(replacementId);
+  expect(backup).not.toMatch(/view=matches|#round-/);
+  unmount();
+
+  const storage = memoryStorage();
+  const { unmount: unmountRestored } = render(<App store={createProjectStore(storage)} />);
+  fireEvent.change(screen.getByLabelText('Backup JSON'), { target: { value: backup } });
+  fireEvent.click(screen.getByRole('button', { name: 'Restore backup' }));
+  expect(liveTournament().getByRole('link', { name: 'Open spectator link' }).href).toBe(replacementUrl);
+  fireEvent.click(liveTournament().getByRole('button', { name: 'Remove Record' }));
+  unmountRestored();
+
+  render(<App store={createProjectStore(storage)} />);
+  expect(liveTournament().queryByRole('link', { name: 'Open spectator link' })).toBeNull();
+  expect(liveTournament().getByRole('button', { name: 'Attach Record' })).toBeTruthy();
+  expect(screen.getByRole('heading', { name: 'Cube performance' })).toBeTruthy();
+});
+
+test('the organizer can copy the clean spectator URL or select it when the clipboard is denied', async () => {
+  const project = store();
+  project.importCubeCsv(csv, { cubeId: eventCubeId });
+  const writeText = vi.fn().mockRejectedValueOnce(new Error('Clipboard denied')).mockResolvedValueOnce();
+  vi.stubGlobal('navigator', { clipboard: { writeText } });
+  try {
+    render(<App store={project} />);
+    const tournament = liveTournament();
+    submitRecordLink(tournament, `${recordUrl}?view=matches#round-1`);
+    const copy = tournament.getByRole('button', { name: 'Copy spectator link' });
+    fireEvent.click(copy);
+    expect(await tournament.findByText(/clipboard unavailable/i)).toBeTruthy();
+    const fallback = tournament.getByLabelText('Spectator URL');
+    expect(fallback.value).toBe(recordUrl);
+    expect(fallback.readOnly).toBe(true);
+    fireEvent.click(copy);
+    expect(await tournament.findByText('Spectator link copied.')).toBeTruthy();
+    expect(writeText.mock.calls).toEqual([[recordUrl], [recordUrl]]);
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});
+
+test('an imported cube without a usable Cube Cobra ID can still use the owner dashboard', () => {
+  const project = store();
+  project.importCubeCsv(csv, { cubeId: 'Local paper cube' });
+  render(<App store={project} />);
+
+  const tournament = liveTournament();
+  expect(tournament.getByText(/needs a Cube Cobra cube ID/i)).toBeTruthy();
+  expect(tournament.queryByRole('link', { name: 'Open cube Records' })).toBeNull();
+  expect(tournament.queryByRole('button', { name: 'Attach Record' })).toBeNull();
+  expect(screen.getByText('Sol Ring')).toBeTruthy();
+  expect(screen.getByRole('link', { name: 'Open QBuddy Print' }).getAttribute('href')).toBe('/print');
 });
 
 test('owner can import a Cube Cobra CSV and find its physical copy', () => {
