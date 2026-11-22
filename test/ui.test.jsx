@@ -1,21 +1,70 @@
 import React from 'react';
 import { afterEach, expect, test } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import App from '../web/App.jsx';
 import PrintApp from '../web/PrintApp.jsx';
 import { createProjectStore } from '../src/project-store.js';
 
 afterEach(cleanup);
 
-function store() {
+function memoryStorage() {
   const values = new Map();
-  return createProjectStore({
+  return {
     getItem: (key) => values.get(key) ?? null,
     setItem: (key, value) => values.set(key, value),
-  });
+    removeItem: (key) => values.delete(key),
+  };
+}
+
+function store() {
+  return createProjectStore(memoryStorage());
 }
 
 const csv = 'name,Set,Collector Number,image URL\nSol Ring,C21,263,https://art.example/sol-ring.jpg';
+
+const eventCubeId = 'tournament-cube';
+const recordId = 'e730f1fa-ac4c-4274-8598-020f767502c9';
+const recordUrl = `https://cubecobra.com/cube/record/${recordId}`;
+
+function liveTournament() {
+  return within(screen.getByRole('region', { name: 'Live tournament' }));
+}
+
+function submitRecordLink(tournament, url, buttonName = 'Attach Record') {
+  fireEvent.change(tournament.getByLabelText('Cube Cobra Record URL'), { target: { value: url } });
+  fireEvent.click(tournament.getByRole('checkbox', { name: 'I confirm this Record belongs to the selected cube.' }));
+  fireEvent.click(tournament.getByRole('button', { name: buttonName }));
+}
+
+test('the owner dashboard attaches a confirmed live Record to the selected cube and restores it after reload', () => {
+  const storage = memoryStorage();
+  const project = createProjectStore(storage);
+  project.importCubeCsv(csv, { cubeId: 'another-cube' });
+  const imported = project.importCubeCsv(csv, { cubeId: eventCubeId });
+  const { unmount } = render(<App store={project} connectionStorage={storage} />);
+
+  const dashboardLink = screen.getByRole('link', { name: 'Live tournament' });
+  expect(document.querySelector(dashboardLink.hash)).toBe(screen.getByRole('region', { name: 'Live tournament' }));
+  fireEvent.change(screen.getByLabelText('Selected cube'), { target: { value: eventCubeId } });
+  const tournament = liveTournament();
+  expect(tournament.getByRole('link', { name: 'Open cube Records' }).href).toBe(`https://cubecobra.com/cube/records/${eventCubeId}`);
+  expect(tournament.getByRole('link', { name: 'Create event in Cube Cobra' }).href).toBe(`https://cubecobra.com/cube/records/create/${eventCubeId}`);
+  expect(tournament.queryByRole('link', { name: 'Open live Record' })).toBeNull();
+  submitRecordLink(tournament, `  https://www.cubecobra.com/cube/record/${recordId}/?view=matches#round-1  `);
+  expect(tournament.getByRole('link', { name: 'Open live Record' }).href).toBe(recordUrl);
+  expect(tournament.getByRole('link', { name: 'Open spectator link' }).href).toBe(recordUrl);
+  expect(tournament.getByText(/organizer-confirmed/i)).toBeTruthy();
+  unmount();
+
+  const reopened = createProjectStore(storage);
+  const cube = reopened.getState().cubes.find(({ cubeId }) => cubeId === eventCubeId);
+  expect(cube.activeVersionId).toBe(imported.cube.versionId);
+  expect(cube.versions).toEqual([imported.cube]);
+  render(<App store={reopened} connectionStorage={storage} />);
+  expect(liveTournament().queryByRole('link', { name: 'Open live Record' })).toBeNull();
+  fireEvent.change(screen.getByLabelText('Selected cube'), { target: { value: eventCubeId } });
+  expect(liveTournament().getByRole('link', { name: 'Open spectator link' }).href).toBe(recordUrl);
+});
 
 test('owner can import a Cube Cobra CSV and find its physical copy', () => {
   render(<App store={store()} />);
