@@ -1,5 +1,6 @@
 import { newId } from './ids.js';
 import { importCubeCobraCsv } from './cube-cobra-import.js';
+import { getCubeCobraRecordUrl, getCubeCobraRecordsLinks, parseCubeCobraRecordUrl } from './cube-cobra-record-link.js';
 import { archiveAndResetCycle, createTrackingCycle, reviewSnapshot } from './observations.js';
 
 const STORAGE_KEY = 'cube-buddy-project-v1';
@@ -13,6 +14,9 @@ function validateBackupProject(project) {
   for (const cube of project.cubes) {
     if (!cube || typeof cube.cubeId !== 'string' || !Array.isArray(cube.versions) || cubeIds.has(cube.cubeId) || !cube.versions.some((version) => version.versionId === cube.activeVersionId)) {
       throw new Error('Invalid cube in Cube Buddy backup');
+    }
+    if (Object.hasOwn(cube, 'cubeCobraRecordId') && (!getCubeCobraRecordsLinks(cube.cubeId) || !getCubeCobraRecordUrl(cube.cubeCobraRecordId))) {
+      throw new Error('Invalid Cube Cobra Record in Cube Buddy backup');
     }
     cubeIds.add(cube.cubeId);
     for (const version of cube.versions) {
@@ -65,6 +69,18 @@ export function createProjectStore(storage) {
   return {
     getState() {
       return structuredClone(state);
+    },
+
+    setCubeCobraRecord(cubeId, recordUrl) {
+      const index = state.cubes.findIndex((cube) => cube.cubeId === cubeId);
+      if (index < 0 || !getCubeCobraRecordsLinks(cubeId)) throw new Error('Select an imported cube with a Cube Cobra cube ID');
+
+      const cubes = [...state.cubes];
+      const cube = { ...cubes[index] };
+      if (recordUrl === null) delete cube.cubeCobraRecordId;
+      else cube.cubeCobraRecordId = parseCubeCobraRecordUrl(recordUrl);
+      cubes[index] = cube;
+      commit({ ...state, cubes });
     },
 
     exportBackup({ exportedAt } = {}) {
