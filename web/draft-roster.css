@@ -1,0 +1,22 @@
+.roster-shell { max-width: 840px; overflow-wrap: anywhere; }
+.roster-panel .notice, .roster-panel > .roster-warning { margin: 12px 0 0; }
+.roster-panel .notice.error, .roster-panel .roster-warning { color: #7b2f1b; }
+.roster-totals, .roster-seat-controls, .roster-actions { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.roster-seat { min-inline-size: 0; padding: 8px 16px 14px; margin: 0 0 12px; border: 1px solid #dce5da; border-radius: 12px; }
+.roster-seat legend { padding-inline: 6px; font-weight: 750; }
+.roster-panel small { color: #5b7065; font-size: .8rem; font-weight: 400; }
+.roster-seat p, .roster-players p { margin: 4px 0 0; }
+.roster-deck { margin-top: 8px; }
+.roster-deck summary { cursor: pointer; font-weight: 650; width: fit-content; }
+.roster-boards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); gap: 16px; }
+.roster-boards h3 { font-size: .9rem; margin: 10px 0 4px; }
+.roster-boards ul { margin: 0; padding-left: 20px; }
+.roster-players { list-style: none; padding: 0; }
+.roster-players > li { border-top: 1px solid #dce5da; padding: 10px 0; }
+.roster-actions { margin-top: 18px; }
+.roster-panel button:disabled { opacity: .55; cursor: default; }
+
+@media (max-width: 520px) {
+  .roster-shell .panel { padding: 18px; }
+  .roster-shell .masthead h1 { font-size: clamp(2rem, 10vw, 3rem); }
+}

@@ -22,6 +22,7 @@ Update this board with each story move. IDs and phases come from the project bri
 
 ## Review
 
+- [ ] GitHub #2: Draftmancer DraftLog v2.0 and v2.1 import, seat and deck review, and a versioned roster file for paper tournaments. The standalone page and handoff reopen pass production browser tests. [Issue #2](https://github.com/Ganomee/cube-buddy/issues/2)
 - [ ] CB-19, CB-33 (P0/1) Revised numbered A4 proof generated with nine fronts, mirrored Games/Wins backs (50 squares each), 20 two-digit pick boxes, in-box AVG/CNT fields, QR identities, and manifest. Awaiting physical Canon iP7200-series print and owner assessment of registration, scan/readability, and erasability.
 - [ ] CB-20, CB-22, CB-36 (P0/1) Owner flow imports a cube, opens a copy by QR payload, reviews cumulative Games/Wins marks, displays performance, and archives/resets a cycle. Needs owner trial with real cards and copies before release acceptance.
 - [ ] CB-23 (P0/1) Copy review shows sample size, last review date, and the player-selected scope. Awaiting owner workflow review.
