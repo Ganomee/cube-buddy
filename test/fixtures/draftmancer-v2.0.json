@@ -1,0 +1,35 @@
+{
+  "version": "2.0",
+  "type": "Draft",
+  "sessionID": "Old Cube Night",
+  "time": 1672527600000,
+  "setRestriction": [],
+  "useCustomBoosters": false,
+  "customBoosters": [],
+  "boosters": [["633c7fbd-b327-4ab3-9490-77e71bb4d986"]],
+  "carddata": {
+    "633c7fbd-b327-4ab3-9490-77e71bb4d986": {
+      "id": "633c7fbd-b327-4ab3-9490-77e71bb4d986",
+      "name": "Llanowar Elves",
+      "set": "m19",
+      "collector_number": "314"
+    }
+  },
+  "delayed": false,
+  "personalLogs": true,
+  "teamDraft": false,
+  "users": {
+    "20f954f4-ffb6-4267-98ef-555555555555": {
+      "userID": "20f954f4-ffb6-4267-98ef-555555555555",
+      "userName": "River",
+      "isBot": false,
+      "picks": [{"pick": [0], "booster": ["633c7fbd-b327-4ab3-9490-77e71bb4d986"]}],
+      "cards": ["633c7fbd-b327-4ab3-9490-77e71bb4d986"],
+      "decklist": {
+        "main": ["633c7fbd-b327-4ab3-9490-77e71bb4d986"],
+        "side": [],
+        "lands": {"W": 0, "U": 0, "B": 0, "R": 0, "G": 17}
+      }
+    }
+  }
+}

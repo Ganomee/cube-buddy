@@ -1,0 +1,105 @@
+{
+  "version": "2.1",
+  "type": "Draft",
+  "sessionID": "Friday Cube 42",
+  "time": 1795212000000,
+  "lastUpdated": 1795215600000,
+  "setRestriction": [],
+  "useCustomBoosters": false,
+  "customBoosters": [],
+  "delayed": false,
+  "personalLogs": true,
+  "teamDraft": false,
+  "boosters": [
+    ["b513532b-8214-428d-b536-f90b44a88ac5", "b513532b-8214-428d-b536-f90b44a88ac5", "4f73e505-d2d3-44af-a37d-ecbcfe866f84", "signed-proxy-42"]
+  ],
+  "carddata": {
+    "b513532b-8214-428d-b536-f90b44a88ac5": {
+      "id": "b513532b-8214-428d-b536-f90b44a88ac5",
+      "oracle_id": "9141e3cb-a635-48ea-b42f-5d4ab16e42a9",
+      "name": "Lightning Bolt",
+      "set": "m11",
+      "collector_number": "149",
+      "colors": ["R"],
+      "type": "Instant"
+    },
+    "4f73e505-d2d3-44af-a37d-ecbcfe866f84": {
+      "id": "4f73e505-d2d3-44af-a37d-ecbcfe866f84",
+      "oracle_id": "cc53aa65-3891-42bd-8c4d-a51ae6f2938d",
+      "name": "Island",
+      "set": "m11",
+      "collector_number": "234",
+      "colors": [],
+      "type": "Basic Land"
+    },
+    "signed-proxy-42": {
+      "id": "signed-proxy-42",
+      "oracle_id": "",
+      "name": "Festival Familiar",
+      "set": "custom",
+      "collector_number": "42",
+      "is_custom": true
+    }
+  },
+  "users": {
+    "c0f420ee-edbc-4a58-a1a5-111111111111": {
+      "userID": "c0f420ee-edbc-4a58-a1a5-111111111111",
+      "userName": "Alex",
+      "isBot": false,
+      "picks": [
+        {
+          "packNum": 0,
+          "pickNum": 0,
+          "pick": [0],
+          "booster": ["b513532b-8214-428d-b536-f90b44a88ac5", "4f73e505-d2d3-44af-a37d-ecbcfe866f84"]
+        }
+      ],
+      "cards": [
+        "b513532b-8214-428d-b536-f90b44a88ac5",
+        "b513532b-8214-428d-b536-f90b44a88ac5",
+        "b513532b-8214-428d-b536-f90b44a88ac5",
+        "4f73e505-d2d3-44af-a37d-ecbcfe866f84",
+        "signed-proxy-42"
+      ],
+      "decklist": {
+        "main": [
+          "b513532b-8214-428d-b536-f90b44a88ac5",
+          "b513532b-8214-428d-b536-f90b44a88ac5",
+          "4f73e505-d2d3-44af-a37d-ecbcfe866f84"
+        ],
+        "side": ["b513532b-8214-428d-b536-f90b44a88ac5", "signed-proxy-42"],
+        "lands": {"W": 0, "U": 7, "B": 0, "R": 8, "G": 0},
+        "hashes": {"mtgo": "synthetic-hash"}
+      }
+    },
+    "eb796ba1-af24-4b3d-8c5f-222222222222": {
+      "userID": "eb796ba1-af24-4b3d-8c5f-222222222222",
+      "userName": "Alex",
+      "isBot": false,
+      "picks": [],
+      "cards": ["signed-proxy-42"]
+    },
+    "4e2193e2-9b3a-465f-8a9d-333333333333": {
+      "userID": "4e2193e2-9b3a-465f-8a9d-333333333333",
+      "userName": "Morgan",
+      "isBot": false,
+      "picks": [],
+      "cards": []
+    },
+    "70ab5dab-8914-4ce8-89eb-444444444444": {
+      "userID": "70ab5dab-8914-4ce8-89eb-444444444444",
+      "userName": "Quinn",
+      "isBot": false,
+      "picks": [],
+      "cards": ["4f73e505-d2d3-44af-a37d-ecbcfe866f84"],
+      "decklist": {"main": ["4f73e505-d2d3-44af-a37d-ecbcfe866f84"], "side": []}
+    },
+    "Bot_0": {
+      "userID": "Bot_0",
+      "userName": "Bot Ada",
+      "isBot": true,
+      "picks": [],
+      "cards": ["signed-proxy-42"]
+    }
+  }
+}
