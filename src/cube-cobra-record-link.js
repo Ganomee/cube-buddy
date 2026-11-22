@@ -1,7 +1,10 @@
 const ORIGIN = 'https://cubecobra.com';
 const UUID = '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}';
 const RECORD_ID = new RegExp(`^${UUID}$`);
-const RECORD_URL = new RegExp(`^https://(?:www\\.)?cubecobra\\.com/cube/record/(${UUID})/?(?:[?#][^\\s\\\\]*)?$`, 'i');
+const RECORD_URL = new RegExp(
+  String.raw`^https://(?:www\.)?cubecobra\.com/cube/record/(${UUID})/?(?:[?#][^\s\\]*)?$`,
+  'i',
+);
 const CUBE_ID = /^[a-z0-9][a-z0-9_-]*$/i;
 
 export function getCubeCobraRecordsLinks(cubeId) {

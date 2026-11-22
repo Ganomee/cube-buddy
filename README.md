@@ -22,6 +22,10 @@ The owner screen exports `cube-buddy-performance` JSON linked to the Cube Cobra 
 
 Cube Cobra URL import uses its public, CORS-enabled cube JSON endpoint and needs no account token. Cube Cobra does not currently document a personal API-token or OAuth flow for account/private-cube access. Use a CSV export when the public endpoint cannot read a cube; do not paste a password or browser session cookie into Cube Buddy.
 
+Use **Live tournament** on the Cube Buddy dashboard to select an imported cube and open its Records page or create an event in Cube Cobra. For a CSV import, enter the Cube Cobra cube ID or short ID in the Cube ID field. Open the event in Cube Cobra, paste its `/cube/record/<id>` page URL into Cube Buddy, and confirm that it belongs to the selected cube. You can replace or remove the attachment later. Cube Buddy saves the Record ID with the cube in local storage and in project backups.
+
+Use **Open live Record** to run the event under your Cube Cobra organizer login. Use **Copy spectator link** or copy the displayed URL to share that Record with players or a room display. Cube Cobra applies the cube’s visibility. Players can report scores to you in person without an account or a phone.
+
 For a future Records contribution, select an imported cube and follow **Connect a Cube Cobra record** in the app. In Cube Cobra, open that cube's Records page, create or open the destination record, use its share action, and paste the copied contribution link or token into Cube Buddy. The token is stored only in that browser and is excluded from project backups. Saving it prepares the connection; automatic contribution is not implemented yet.
 
 For live integration testing, put `CUBE_COBRA_RECORD_SHARE_URL=<complete contribution URL>` in the ignored `.env.local` file. By default, `npm run test:cubecobra-record` only checks the contribution page. Add `CUBE_COBRA_ENABLE_WRITE_TEST=1` to run the write tests. They create or update stable Cube Buddy test players, upload a one-card deck and result, read the record back, and compare the saved Oracle ID and W/L/D with the request.

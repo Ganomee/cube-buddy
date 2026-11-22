@@ -43,6 +43,17 @@ function RecordOrganizer({ cube, links, onSetRecord }) {
     }
   }
 
+  function changeRecordUrl(event) {
+    setDraftUrl(event.target.value);
+    setConfirmed(false);
+    setFeedback(null);
+  }
+
+  function attachRecord(event) {
+    event.preventDefault();
+    if (confirmed) updateRecord(draftUrl);
+  }
+
   return (
     <div className="tournament-content">
       <div>
@@ -55,10 +66,10 @@ function RecordOrganizer({ cube, links, onSetRecord }) {
         <p>Cube Cobra applies the cube’s visibility to its Record. Open the Record there to check whether it’s available.</p>
         {recordUrl && <SpectatorLink key={recordUrl} url={recordUrl} />}
       </div>
-      <form className="import-form" onSubmit={(event) => { event.preventDefault(); if (confirmed) updateRecord(draftUrl); }}>
+      <form className="import-form" onSubmit={attachRecord}>
         <h3>{recordUrl ? 'Organizer-confirmed Record' : 'Attach an existing Record'}</h3>
         <p>Paste the URL from the Record page for this cube.</p>
-        <label>Cube Cobra Record URL<input type="text" inputMode="url" autoComplete="off" spellCheck={false} value={draftUrl} onChange={(event) => setDraftUrl(event.target.value)} required /></label>
+        <label>Cube Cobra Record URL<input type="text" inputMode="url" autoComplete="off" spellCheck={false} value={draftUrl} onChange={changeRecordUrl} required /></label>
         <label className="checkbox-label"><input type="checkbox" checked={confirmed} onChange={(event) => setConfirmed(event.target.checked)} required />I confirm this Record belongs to the selected cube.</label>
         <div className="tournament-actions">
           <button type="submit">{recordUrl ? 'Replace Record' : 'Attach Record'}</button>
@@ -75,7 +86,7 @@ export default function LiveTournament({ cubes, cube, onSelectCube, onSetRecord 
   const links = getCubeCobraRecordsLinks(cube?.cubeId);
 
   return (
-    <section className="panel tournament-panel" id="live-tournament" aria-labelledby="live-tournament-title">
+    <section className="panel" id="live-tournament" aria-labelledby="live-tournament-title">
       <div className="section-head">
         <h2 id="live-tournament-title">Live tournament</h2>
         {cube && (
