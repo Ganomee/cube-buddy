@@ -8,8 +8,12 @@ const secondAlexId = 'eb796ba1-af24-4b3d-8c5f-222222222222';
 const quinnId = '70ab5dab-8914-4ce8-89eb-444444444444';
 
 test('organizer reviews a local DraftLog, downloads the roster and reopens it', async ({ page }) => {
-  const response = await page.goto('/draft-roster.html');
+  const response = await page.goto('/');
   expect(response.status()).toBe(200);
+  const rosterLink = page.getByRole('link', { name: 'Import Draftmancer roster' });
+  await expect(rosterLink).toBeVisible();
+  await rosterLink.click();
+  await expect(page).toHaveURL('/draft-roster.html');
   await expect(page.getByRole('heading', { name: 'Draft roster' })).toBeVisible();
   const fileInput = page.getByLabel('Draft log or roster file');
   await fileInput.setInputFiles(fixture('draftmancer-v2.1.txt'));

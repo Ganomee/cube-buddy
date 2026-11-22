@@ -269,6 +269,7 @@ export default function App({ store, fetcher = globalThis.fetch, connectionStora
         <p>Import your Cube Cobra list, review marked card backs, and see the recorded outcomes on your cube.</p>
         <nav className="tournament-actions" aria-label="Cube Buddy">
           <a className="header-link" href="#live-tournament">Live tournament</a>
+          <a className="header-link" href="/draft-roster.html">Import Draftmancer roster</a>
           <a className="header-link" href="/print">Open QBuddy Print</a>
         </nav>
       </header>
