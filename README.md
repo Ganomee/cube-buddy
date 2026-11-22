@@ -10,6 +10,10 @@ Requires Node.js 20 or newer. Run `npm install`, then `npm run dev` for the owne
 
 Open `/print` in the development server, or select **Open QBuddy Print** in the owner app, to configure the printable card back. The Print Studio supports an uploaded PNG, JPEG, WebP, or SVG background; color-coded independent overlays; reusable JSON templates; configurable grids; live Cube Buddy values; A4, Letter, and custom paper sizes; separate duplex registration offsets; and either interleaved or manual front-stack/reversed-back ordering.
 
+Open `/draft-roster.html` on the deployed app or in the dev server to review a Draftmancer DraftLog, confirm seats, and download the roster. You can reopen the roster on the same page. The workflow runs locally in the browser without an account. See the [roster handoff contract](docs/DRAFT_ROSTER.md).
+
+To run the production browser tests, install Chromium with `npx playwright install --only-shell chromium`, then run `npm run build` and `npm run test:e2e:roster`.
+
 Run `npm run test:cubecobra` for the opt-in live smoke test against reference cube `0b0d5ab4-9816-4d1a-b726-bfd211317413`. It currently verifies the 358-card mainboard and reports the available maybeboard and basics without importing them.
 
 Run `npm run proof` to regenerate the numbered A4 proof in `proof/`. The proof still needs a 100% scale print on the Canon iP7200 series to confirm front/back alignment, QR reading, and writing/erasing on the intended surface.
